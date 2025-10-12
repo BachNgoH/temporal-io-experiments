@@ -113,10 +113,20 @@ async def fetch_invoice(
 
     # Determine detail URL based on invoice type (electronic vs cash register)
     flow_type = invoice.metadata.get("flow_type", "")
-    if "may_tinh_tien" in flow_type:
+    khmshdon = invoice.metadata.get("khmshdon", "1")
+    
+    # Use SCO endpoint for cash register invoices (may_tinh_tien) or specific khmshdon values
+    use_sco_endpoint = (
+        "may_tinh_tien" in flow_type or 
+        khmshdon in ["2", "3", "4"]  # Common SCO khmshdon values
+    )
+    
+    if use_sco_endpoint:
         detail_url = GDT_DETAIL_SCO_URL  # Cash register (SCO)
+        activity.logger.info(f"🏪 Using SCO endpoint for invoice: flow_type={flow_type}, khmshdon={khmshdon}")
     else:
         detail_url = GDT_DETAIL_URL  # Electronic
+        activity.logger.info(f"💻 Using electronic endpoint for invoice: flow_type={flow_type}, khmshdon={khmshdon}")
 
     # Build query parameters
     params = {
