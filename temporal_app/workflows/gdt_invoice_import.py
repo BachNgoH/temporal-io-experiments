@@ -4,6 +4,7 @@ import asyncio
 from datetime import timedelta
 
 from temporalio import workflow
+from temporalio.common import RetryPolicy
 
 # Import activities
 with workflow.unsafe.imports_passed_through():
@@ -106,7 +107,7 @@ class GdtInvoiceImportWorkflow:
             login_to_gdt,
             login_request,
             start_to_close_timeout=timedelta(minutes=5),
-            retry_policy=workflow.RetryPolicy(
+            retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=10),
                 maximum_interval=timedelta(minutes=2),
                 maximum_attempts=5,
@@ -128,7 +129,7 @@ class GdtInvoiceImportWorkflow:
             ],
             start_to_close_timeout=timedelta(minutes=15),
             heartbeat_timeout=timedelta(minutes=2),
-            retry_policy=workflow.RetryPolicy(
+            retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=10),
                 maximum_interval=timedelta(minutes=2),
                 maximum_attempts=3,
@@ -216,7 +217,7 @@ class GdtInvoiceImportWorkflow:
                 fetch_invoice,
                 args=[invoice, self.session],
                 start_to_close_timeout=timedelta(minutes=10),  # Total time including retries
-                retry_policy=workflow.RetryPolicy(
+                retry_policy=RetryPolicy(
                     initial_interval=timedelta(seconds=5),
                     maximum_interval=timedelta(minutes=5),
                     maximum_attempts=7,

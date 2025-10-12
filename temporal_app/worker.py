@@ -5,6 +5,7 @@ import logging
 import os
 import signal
 import sys
+from datetime import timedelta
 
 from temporalio.client import Client, TLSConfig
 from temporalio.worker import Worker
@@ -77,7 +78,7 @@ class TemporalWorker:
             max_concurrent_workflow_tasks=concurrency_settings["workflows"],
             max_concurrent_activities=concurrency_settings["activities"],
             # Graceful shutdown
-            graceful_shutdown_timeout=30,
+            graceful_shutdown_timeout=timedelta(seconds=30),
         )
 
         logger.info("✅ Worker initialized successfully")

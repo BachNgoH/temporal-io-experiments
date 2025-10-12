@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 
 # ============================================================================
@@ -50,5 +51,5 @@ class InvoiceFetchResult:
 
     invoice_id: str
     success: bool
-    data: dict[str, str] | None = None
+    data: dict[str, Any] | None = None
     error: str | None = None
