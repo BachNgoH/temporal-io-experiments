@@ -166,6 +166,7 @@ For high throughput (100 companies × 1000 invoices):
 
 - [Local Setup Guide](docs/LOCAL_SETUP.md) - Complete local development guide
 - [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment on GCP
+- [Migration Plan](docs/MIGRATION_PLAN.md) - Migrate from legacy GDT service to Temporal
 - [Master Plan](MASTER_PLAN.md) - Original architecture and design decisions
 
 ## License

@@ -119,13 +119,28 @@ class GdtInvoiceImportWorkflow:
         return session
 
     async def _discover(self, params: dict) -> list[GdtInvoice]:
-        """Discover all invoices in date range."""
+        """Discover all invoices in date range for all flows."""
+        # Get flows from params (default to all flows if not provided)
+        flows = params.get(
+            "flows",
+            [
+                "ban_ra_dien_tu",
+                "ban_ra_may_tinh_tien",
+                "mua_vao_dien_tu",
+                "mua_vao_may_tinh_tien",
+            ],
+        )
+
+        # Convert enum values to strings if needed
+        flow_strings = [f.value if hasattr(f, "value") else f for f in flows]
+
         invoices = await workflow.execute_activity(
             discover_invoices,
             args=[
                 self.session,
                 params["date_range_start"],
                 params["date_range_end"],
+                flow_strings,
             ],
             start_to_close_timeout=timedelta(minutes=15),
             heartbeat_timeout=timedelta(minutes=2),
@@ -136,7 +151,7 @@ class GdtInvoiceImportWorkflow:
             ),
         )
 
-        workflow.logger.info(f"✅ Discovered {len(invoices)} invoices")
+        workflow.logger.info(f"✅ Discovered {len(invoices)} invoices from {len(flow_strings)} flows")
         return invoices
 
     async def _fetch_all_invoices(self) -> None:

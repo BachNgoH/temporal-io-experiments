@@ -87,6 +87,10 @@ services:
       - TEMPORAL_HOST=temporal:7233
       - TEMPORAL_NAMESPACE=default
       - TEMPORAL_TASK_QUEUE=default-task-queue
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-finiziapp}
+      - GCP_REGION=${GCP_REGION:-asia-southeast1}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/vertex-ai-sa-key.json
+      - CAPTCHA_MODEL=${CAPTCHA_MODEL:-gemini-2.5-flash}
     networks:
       - temporal-network
     restart: unless-stopped

@@ -2,6 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install system dependencies for cairosvg
+RUN apt-get update && apt-get install -y \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libffi-dev \
+    shared-mime-info \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install uv
 RUN pip install uv
 
@@ -9,6 +19,9 @@ RUN pip install uv
 COPY pyproject.toml .
 COPY app/ ./app/
 COPY temporal_app/ ./temporal_app/
+
+# Copy credentials
+COPY credentials/ ./credentials/
 
 # Install dependencies with uv
 RUN uv pip install --system -e .

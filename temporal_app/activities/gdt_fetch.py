@@ -1,12 +1,25 @@
-"""GDT invoice fetching activities."""
+"""GDT invoice fetching activities - Real implementation."""
 
-import asyncio
-import random
+import httpx
 from datetime import datetime, timedelta
-
 from temporalio import activity
 
 from temporal_app.models import GdtInvoice, GdtSession, InvoiceFetchResult
+
+# ============================================================================
+# GDT Invoice Detail URLs
+# ============================================================================
+GDT_BASE_URL = "https://hoadondientu.gdt.gov.vn:30000"
+GDT_DETAIL_URL = f"{GDT_BASE_URL}/query/invoices/detail"
+GDT_DETAIL_SCO_URL = f"{GDT_BASE_URL}/sco-query/invoices/detail"
+
+# ============================================================================
+# Configuration
+# ============================================================================
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 2.0
+REQUEST_TIMEOUT_SECONDS = 30.0
+RATE_LIMIT_BACKOFF_SECONDS = 30
 
 # ============================================================================
 # Shared Rate Limit State (In-Memory)
@@ -67,83 +80,141 @@ async def fetch_invoice(
     session: GdtSession,
 ) -> InvoiceFetchResult:
     """
-    Fetch detailed invoice data from GDT portal.
+    Fetch detailed invoice JSON from GDT portal.
+
+    Flow:
+    1. Check shared rate limit state
+    2. Build detail API URL with invoice parameters
+    3. Download invoice JSON with full details including line items (hdhhdvu)
+    4. Return invoice data with JSON content
 
     Rate Limiting Strategy:
-    1. Check shared rate limit state before fetching
-    2. If rate limited → raise RateLimitError (Temporal will retry with backoff)
-    3. If 429 response → set backoff state + raise RateLimitError
-    4. Temporal's exponential backoff spreads retries naturally
+    - Check state before making request
+    - If 429 → set backoff and raise RateLimitError
+    - Temporal retries with exponential backoff
+    - Other concurrent fetches see backoff state and wait
 
-    Why this prevents cascade failures:
-    - First invoice to hit 429 sets backoff state
-    - Other concurrent fetches check state and back off immediately
-    - No thundering herd of retries
-    - Exponential backoff gradually increases delay
+    Args:
+        invoice: GdtInvoice with invoice_id, metadata (khhdon, nbmst, etc.)
+        session: GdtSession with bearer token and cookies
 
-    This is a MOCK implementation. In production, this would:
-    1. Make HTTP request to fetch invoice details
-    2. Download invoice PDF/XML
-    3. Store invoice data to Cloud Storage
-    4. Return fetch result
+    Returns:
+        InvoiceFetchResult with JSON content or error
     """
-    activity.logger.info(f"Fetching invoice: {invoice.invoice_id}")
+    activity.logger.info(f"📄 Fetching invoice details: {invoice.invoice_id}")
 
     # Check if we're currently rate limited (shared state)
     if not await check_rate_limit(session.company_id):
-        # Don't even try - we know we're rate limited
         raise RateLimitError(f"Rate limited for company {session.company_id}")
 
-    # Simulate network delay
-    await asyncio.sleep(random.uniform(0.3, 1.0))
+    # Extract invoice parameters from metadata
+    nbmst = invoice.supplier_tax_code or invoice.metadata.get("nbmst", "")
+    khhdon = invoice.metadata.get("khhdon", "")
+    shdon = invoice.invoice_number
+    khmshdon = invoice.metadata.get("khmshdon", "1")
 
-    # Mock: Simulate rate limiting (10% chance of 429)
-    # In production: Detect actual 429 response from GDT
-    if random.random() < 0.1:
-        activity.logger.warning(f"429 Rate Limit for invoice {invoice.invoice_id}")
-
-        # Set backoff state so other concurrent fetches back off
-        await set_rate_limit_backoff(session.company_id, backoff_seconds=30)
-
-        # Raise error → Temporal will retry with exponential backoff
-        raise RateLimitError("Rate limit exceeded (429)")
-
-    # Mock: Simulate occasional failures (5% chance, non-rate-limit)
-    if random.random() < 0.05:
-        activity.logger.warning(f"Failed to fetch invoice {invoice.invoice_id}")
+    if not all([nbmst, khhdon, shdon]):
+        activity.logger.error(
+            f"Missing required parameters: nbmst={nbmst}, khhdon={khhdon}, shdon={shdon}"
+        )
         return InvoiceFetchResult(
             invoice_id=invoice.invoice_id,
             success=False,
-            error="Network timeout",
+            error="Missing required invoice parameters",
         )
 
-    # Mock: Generate detailed invoice data
-    invoice_data = {
-        "invoice_id": invoice.invoice_id,
-        "invoice_number": invoice.invoice_number,
-        "invoice_date": invoice.invoice_date,
-        "invoice_type": invoice.invoice_type,
-        "amount": invoice.amount,
-        "tax_amount": invoice.tax_amount,
-        "supplier_name": invoice.supplier_name,
-        "supplier_tax_code": invoice.supplier_tax_code,
-        "line_items": [
-            {
-                "description": f"Item {i+1}",
-                "quantity": random.randint(1, 10),
-                "unit_price": round(random.uniform(10.0, 1000.0), 2),
-            }
-            for i in range(random.randint(1, 5))
-        ],
-        "metadata": invoice.metadata,
-        # In production: Would include storage_path to Cloud Storage
-        "storage_path": f"gs://gdt-invoices/{session.company_id}/{invoice.invoice_id}.json",
+    # Determine detail URL based on invoice type (electronic vs cash register)
+    flow_type = invoice.metadata.get("flow_type", "")
+    if "may_tinh_tien" in flow_type:
+        detail_url = GDT_DETAIL_SCO_URL  # Cash register (SCO)
+    else:
+        detail_url = GDT_DETAIL_URL  # Electronic
+
+    # Build query parameters
+    params = {
+        "nbmst": nbmst,
+        "khhdon": khhdon,
+        "shdon": shdon,
+        "khmshdon": khmshdon,
     }
 
-    activity.logger.info(f"✅ Fetched invoice {invoice.invoice_id}")
+    # Build headers with bearer token
+    headers = {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "vi",
+        "Authorization": session.access_token,
+        "Origin": "https://hoadondientu.gdt.gov.vn",
+        "Referer": "https://hoadondientu.gdt.gov.vn/",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    }
 
-    return InvoiceFetchResult(
-        invoice_id=invoice.invoice_id,
-        success=True,
-        data=invoice_data,
-    )
+    # Fetch invoice details (Temporal handles retries)
+    try:
+        async with httpx.AsyncClient(
+            timeout=REQUEST_TIMEOUT_SECONDS,
+            verify=False,
+        ) as client:
+            response = await client.get(
+                detail_url,
+                params=params,
+                headers=headers,
+                cookies=session.cookies,
+            )
+
+            # Handle rate limiting
+            if response.status_code == 429:
+                activity.logger.warning(f"Rate limited (429) for invoice {invoice.invoice_id}")
+                await set_rate_limit_backoff(
+                    session.company_id,
+                    backoff_seconds=RATE_LIMIT_BACKOFF_SECONDS,
+                )
+                raise RateLimitError(f"Rate limit exceeded (429) for invoice {invoice.invoice_id}")
+
+            # Success - process response
+            if response.status_code == 200:
+                invoice_detail = response.json()
+
+                if invoice_detail:
+                    # Extract line items from hdhhdvu field
+                    line_items = invoice_detail.get("hdhhdvu", [])
+                    activity.logger.info(
+                        f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
+                    )
+
+                    return InvoiceFetchResult(
+                        invoice_id=invoice.invoice_id,
+                        success=True,
+                        data={
+                            "invoice_id": invoice.invoice_id,
+                            "invoice_number": invoice.invoice_number,
+                            "invoice_detail": invoice_detail,  # Full JSON response
+                            "line_items": line_items,  # Invoice line items (hdhhdvu)
+                            "metadata": invoice.metadata,
+                        },
+                    )
+                else:
+                    activity.logger.error("Empty response from detail API")
+                    return InvoiceFetchResult(
+                        invoice_id=invoice.invoice_id,
+                        success=False,
+                        error="Empty response from detail API",
+                    )
+
+            # Auth error
+            if response.status_code in (401, 403):
+                activity.logger.error(f"Auth failed for invoice {invoice.invoice_id}")
+                return InvoiceFetchResult(
+                    invoice_id=invoice.invoice_id,
+                    success=False,
+                    error=f"Authentication failed: {response.status_code}",
+                )
+
+            # Other errors (let Temporal retry)
+            activity.logger.error(
+                f"Download failed for {invoice.invoice_id} ({response.status_code}): {response.text[:200]}"
+            )
+            raise RateLimitError(f"Download failed: HTTP {response.status_code}")
+
+    except httpx.RequestError as e:
+        activity.logger.error(f"Network error for invoice {invoice.invoice_id}: {str(e)}")
+        raise RateLimitError(f"Network error: {str(e)}")

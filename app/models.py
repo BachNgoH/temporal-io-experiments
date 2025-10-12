@@ -69,6 +69,15 @@ class TaskStatusResponse(BaseModel):
 # ============================================================================
 
 
+class InvoiceFlow(str, Enum):
+    """GDT invoice flows."""
+
+    BAN_RA_DIEN_TU = "ban_ra_dien_tu"  # Outbound electronic invoices
+    BAN_RA_MAY_TINH_TIEN = "ban_ra_may_tinh_tien"  # Outbound cash register invoices
+    MUA_VAO_DIEN_TU = "mua_vao_dien_tu"  # Inbound electronic invoices
+    MUA_VAO_MAY_TINH_TIEN = "mua_vao_may_tinh_tien"  # Inbound cash register invoices
+
+
 class GdtInvoiceImportParams(BaseModel):
     """Parameters for GDT invoice import task."""
 
@@ -79,6 +88,15 @@ class GdtInvoiceImportParams(BaseModel):
     )
     date_range_start: str = Field(..., description="Start date (YYYY-MM-DD)")
     date_range_end: str = Field(..., description="End date (YYYY-MM-DD)")
+    flows: list[InvoiceFlow] = Field(
+        default=[
+            InvoiceFlow.BAN_RA_DIEN_TU,
+            InvoiceFlow.BAN_RA_MAY_TINH_TIEN,
+            InvoiceFlow.MUA_VAO_DIEN_TU,
+            InvoiceFlow.MUA_VAO_MAY_TINH_TIEN,
+        ],
+        description="Invoice flows to crawl (default: all flows)",
+    )
 
 
 class GdtInvoiceImportProgress(BaseModel):
