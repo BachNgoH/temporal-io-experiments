@@ -71,8 +71,12 @@ async def discover_invoices(
     # Build session headers with bearer token
     headers = _build_request_headers(session)
 
-    # Process all flows in parallel
-    activity.logger.info(f"🚀 Processing {len(flows)} flows in PARALLEL")
+    # Process flows in batches to avoid rate limiting
+    flow_batch_size = 2  # Process 2 flows at a time to avoid rate limits
+    flow_delay = 1.0  # 1 second delay between batches
+    rate_limit_errors = 0  # Track rate limit errors for adaptive batching
+    
+    activity.logger.info(f"🚀 Processing {len(flows)} flows in BATCHES of {flow_batch_size}")
 
     async def fetch_flow_invoices(flow_code: str) -> tuple[str, list[GdtInvoice]]:
         """Fetch invoices for a single flow."""
@@ -101,34 +105,112 @@ async def discover_invoices(
                 activity.logger.warning(f"⚠️ {flow_code}: No invoices found")
                 return flow_code, []
 
-        except GDTDiscoveryError:
+        except GDTDiscoveryError as e:
+            # Check if it's a rate limit error
+            if "Rate limit exceeded" in str(e) or "429" in str(e):
+                nonlocal rate_limit_errors
+                rate_limit_errors += 1
+                activity.logger.warning(f"⚠️ {flow_code} hit rate limit (429) - will adapt batching")
             # Re-raise GDTDiscoveryError (auth failures, rate limits, etc) - let Temporal handle retry
             activity.logger.error(f"❌ {flow_code} failed with GDTDiscoveryError - failing activity")
             raise
         except Exception as e:
-            # Other unexpected errors - also fail the activity
+            # Other unexpected errors - log but don't fail the entire discovery
             activity.logger.error(f"❌ {flow_code} failed with unexpected error: {str(e)}")
-            raise GDTDiscoveryError(f"{flow_code} failed: {str(e)}")
+            # Return empty list for this flow instead of failing entire discovery
+            return flow_code, []
 
-    # Execute all flow requests in parallel
-    results = await asyncio.gather(
-        *[fetch_flow_invoices(flow) for flow in flows],
-        return_exceptions=True,
-    )
+    # Execute flow requests in batches to avoid rate limiting
+    all_results = []
+    
+    for i in range(0, len(flows), flow_batch_size):
+        batch_flows = flows[i:i + flow_batch_size]
+        batch_num = (i // flow_batch_size) + 1
+        total_batches = (len(flows) + flow_batch_size - 1) // flow_batch_size
+        
+        activity.logger.info(f"📦 Processing flow batch {batch_num}/{total_batches}: {batch_flows}")
+        
+        # Execute batch in parallel
+        batch_results = await asyncio.gather(
+            *[fetch_flow_invoices(flow) for flow in batch_flows],
+            return_exceptions=True,
+        )
+        
+        all_results.extend(batch_results)
+        
+        # Analyze batch results and adapt batching
+        batch_rate_limit_errors = sum(1 for result in batch_results 
+                                    if isinstance(result, Exception) and 
+                                    ("Rate limit exceeded" in str(result) or "429" in str(result)))
+        
+        if batch_rate_limit_errors > 0:
+            # Reduce batch size and increase delay for next batch
+            flow_batch_size = max(1, flow_batch_size - 1)
+            flow_delay = min(5.0, flow_delay * 1.5)
+            activity.logger.warning(f"⚠️ Batch {batch_num} had {batch_rate_limit_errors} rate limit errors - reducing batch size to {flow_batch_size}, delay to {flow_delay}s")
+        else:
+            # Gradually increase batch size if no rate limits
+            flow_batch_size = min(3, flow_batch_size + 1)
+            flow_delay = max(0.5, flow_delay * 0.9)
+            activity.logger.info(f"✅ Batch {batch_num} succeeded - increasing batch size to {flow_batch_size}, delay to {flow_delay}s")
+        
+        # Wait before next batch (except for last batch)
+        if i + flow_batch_size < len(flows):
+            activity.logger.info(f"⏳ Waiting {flow_delay}s before next batch...")
+            await asyncio.sleep(flow_delay)
+    
+    results = all_results
 
-    # Combine results
+    # Combine results and track failures
     all_invoices = []
-    for result in results:
+    failed_flows = []
+    successful_flows = []
+    
+    for i, result in enumerate(results):
+        flow_code = flows[i]
         if isinstance(result, tuple):
             _, invoices = result
             all_invoices.extend(invoices)
+            if invoices:
+                successful_flows.append(flow_code)
+                activity.logger.info(f"✅ {flow_code}: Successfully found {len(invoices)} invoices")
+            else:
+                activity.logger.warning(f"⚠️ {flow_code}: No invoices found (but request succeeded)")
         else:
-            activity.logger.error(f"Flow request failed: {str(result)}")
+            failed_flows.append(flow_code)
+            activity.logger.error(f"❌ {flow_code} failed: {str(result)}")
 
-    activity.logger.info(f"✅ Discovery complete: {len(all_invoices)} total invoices")
+    # Log comprehensive results
+    activity.logger.info(f"📊 Discovery Summary:")
+    activity.logger.info(f"   ✅ Successful flows: {len(successful_flows)}/{len(flows)}")
+    activity.logger.info(f"   ❌ Failed flows: {len(failed_flows)}/{len(flows)}")
+    activity.logger.info(f"   📄 Total invoices found: {len(all_invoices)}")
+    activity.logger.info(f"   🚦 Rate limit errors encountered: {rate_limit_errors}")
+    activity.logger.info(f"   📦 Final batch size: {flow_batch_size}, delay: {flow_delay}s")
+    
+    if failed_flows:
+        activity.logger.warning(f"⚠️ Failed flows: {failed_flows}")
+    
+    if successful_flows:
+        activity.logger.info(f"✅ Successful flows: {successful_flows}")
 
-    # Send heartbeat with progress
-    activity.heartbeat(f"Discovered {len(all_invoices)} invoices from {len(flows)} flows")
+    # Send heartbeat with detailed progress
+    activity.heartbeat(f"Discovered {len(all_invoices)} invoices from {len(successful_flows)}/{len(flows)} flows")
+
+    # Handle different scenarios for empty results
+    if len(all_invoices) == 0:
+        if len(failed_flows) == 0:
+            # All flows succeeded but no invoices found - might be legitimate (no data) or temporary issue
+            activity.logger.warning("⚠️ No invoices found in any flow - this might be a temporary issue")
+            # Don't fail the activity - return empty list and let workflow decide
+        elif len(failed_flows) == len(flows):
+            # All flows failed - this is a serious issue that should trigger retry
+            activity.logger.error("❌ All flows failed - no invoices discovered")
+            raise GDTDiscoveryError(f"All {len(flows)} flows failed during discovery")
+        else:
+            # Some flows failed, some succeeded but no invoices - might be temporary
+            activity.logger.warning(f"⚠️ No invoices found - {len(failed_flows)} flows failed, {len(successful_flows)} succeeded")
+            # Don't fail the activity - return empty list and let workflow decide
 
     return all_invoices
 

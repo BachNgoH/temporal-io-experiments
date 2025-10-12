@@ -9,7 +9,7 @@ from temporalio.common import RetryPolicy
 
 # Import activities
 with workflow.unsafe.imports_passed_through():
-    from temporal_app.activities import discover_invoices, fetch_invoice, login_to_gdt
+    from temporal_app.activities import discover_invoices, discover_invoices_excel, fetch_invoice, login_to_gdt
     from temporal_app.models import GdtInvoice, GdtLoginRequest, GdtSession, InvoiceFetchResult
 
 
@@ -18,9 +18,22 @@ class BatchConfig:
     """Configuration for batch processing with adaptive sizing."""
     batch_size: int = 8
     min_batch_size: int = 3
-    max_batch_size: int = 10
+    max_batch_size: int = 5
     delay: float = 1.0
     base_delay: float = 1.0
+    processing_mode: str = "sequential"  # "parallel" or "sequential"
+    
+    def __post_init__(self):
+        """Initialize delay from base_delay and configure for processing mode."""
+        self.delay = self.base_delay
+        
+        # Override settings for sequential mode
+        if self.processing_mode == "sequential":
+            self.batch_size = 1
+            self.min_batch_size = 1
+            self.max_batch_size = 1
+            self.base_delay = 2.0  # Longer delay for sequential
+            self.delay = 2.0
     
     def reduce_batch_size(self) -> None:
         """Reduce batch size when hitting rate limits."""
@@ -54,6 +67,18 @@ class BatchStats:
     rate_limit_errors: int = 0
 
 
+@dataclass
+class DiscoveryConfig:
+    """Configuration for invoice discovery method."""
+    method: str = "excel"  # "api" or "excel" - Excel is more reliable
+    excel_fallback: bool = True  # Fallback to Excel if API fails
+    
+    def __post_init__(self):
+        """Validate discovery method."""
+        if self.method not in ["api", "excel"]:
+            raise ValueError(f"Invalid discovery method: {self.method}. Must be 'api' or 'excel'")
+
+
 @workflow.defn
 class GdtInvoiceImportWorkflow:
     """
@@ -79,6 +104,7 @@ class GdtInvoiceImportWorkflow:
         self.session: GdtSession | None = None
         self.invoices: list[GdtInvoice] = []
         self.results: list[InvoiceFetchResult] = []
+        self.processing_mode: str = "sequential"  # Default to parallel
 
         # Progress tracking
         self.total_invoices = 0
@@ -100,6 +126,10 @@ class GdtInvoiceImportWorkflow:
             f"Starting GDT invoice import for {params['company_id']} "
             f"from {params['date_range_start']} to {params['date_range_end']}"
         )
+
+        # Extract processing mode from parameters
+        self.processing_mode = params.get("processing_mode", "sequential")
+        workflow.logger.info(f"Processing mode: {self.processing_mode}")
 
         try:
             # Step 1: Login to GDT portal
@@ -162,7 +192,7 @@ class GdtInvoiceImportWorkflow:
         return session
 
     async def _discover(self, params: dict) -> list[GdtInvoice]:
-        """Discover all invoices in date range for all flows."""
+        """Discover all invoices in date range for all flows using configurable method."""
         # Get flows from params (default to all flows if not provided)
         flows = params.get(
             "flows",
@@ -176,6 +206,52 @@ class GdtInvoiceImportWorkflow:
 
         # Convert enum values to strings if needed
         flow_strings = [f.value if hasattr(f, "value") else f for f in flows]
+        
+        # Get discovery configuration from params
+        discovery_config = DiscoveryConfig(
+            method=params.get("discovery_method", "excel"),  # Excel is more reliable
+            excel_fallback=params.get("excel_fallback", True)
+        )
+        
+        workflow.logger.info(f"🔍 Discovery method: {discovery_config.method}")
+        workflow.logger.info(f"🔄 Excel fallback enabled: {discovery_config.excel_fallback}")
+
+        # Try primary discovery method
+        try:
+            if discovery_config.method == "api":
+                invoices = await self._discover_via_api(params, flow_strings)
+            else:  # excel
+                invoices = await self._discover_via_excel(params, flow_strings)
+                
+            if invoices:
+                workflow.logger.info(f"✅ {discovery_config.method.upper()} discovery successful: {len(invoices)} invoices")
+                return invoices
+            else:
+                workflow.logger.warning(f"⚠️ {discovery_config.method.upper()} discovery returned no invoices")
+                
+        except Exception as e:
+            workflow.logger.error(f"❌ {discovery_config.method.upper()} discovery failed: {str(e)}")
+        
+        # Try fallback method if enabled and primary failed
+        if discovery_config.excel_fallback and discovery_config.method == "api":
+            workflow.logger.info("🔄 Attempting Excel fallback discovery...")
+            try:
+                invoices = await self._discover_via_excel(params, flow_strings)
+                if invoices:
+                    workflow.logger.info(f"✅ Excel fallback successful: {len(invoices)} invoices")
+                    return invoices
+                else:
+                    workflow.logger.warning("⚠️ Excel fallback returned no invoices")
+            except Exception as e:
+                workflow.logger.error(f"❌ Excel fallback failed: {str(e)}")
+        
+        # If both methods failed or returned no invoices
+        workflow.logger.error("❌ All discovery methods failed or returned no invoices")
+        return []
+
+    async def _discover_via_api(self, params: dict, flow_strings: list[str]) -> list[GdtInvoice]:
+        """Discover invoices using API method."""
+        workflow.logger.info(f"🔗 API Discovery: Processing {len(flow_strings)} flows")
 
         invoices = await workflow.execute_activity(
             discover_invoices,
@@ -185,16 +261,42 @@ class GdtInvoiceImportWorkflow:
                 params["date_range_end"],
                 flow_strings,
             ],
-            start_to_close_timeout=timedelta(minutes=15),
-            heartbeat_timeout=timedelta(minutes=2),
+            start_to_close_timeout=timedelta(minutes=20),
+            heartbeat_timeout=timedelta(minutes=3),
+            retry_policy=RetryPolicy(
+                initial_interval=timedelta(seconds=5),
+                maximum_interval=timedelta(minutes=5),
+                maximum_attempts=8,
+                backoff_coefficient=1.8,
+            ),
+        )
+        
+        workflow.logger.info(f"✅ API Discovery: Found {len(invoices)} invoices")
+        return invoices
+
+    async def _discover_via_excel(self, params: dict, flow_strings: list[str]) -> list[GdtInvoice]:
+        """Discover invoices using Excel export method."""
+        workflow.logger.info(f"📊 Excel Discovery: Processing {len(flow_strings)} flows")
+        
+        invoices = await workflow.execute_activity(
+            discover_invoices_excel,
+            args=[
+                self.session,
+                params["date_range_start"],
+                params["date_range_end"],
+                flow_strings,
+            ],
+            start_to_close_timeout=timedelta(minutes=30),  # Longer timeout for Excel downloads
+            heartbeat_timeout=timedelta(minutes=5),
             retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=10),
-                maximum_interval=timedelta(minutes=2),
-                maximum_attempts=3,
+                maximum_interval=timedelta(minutes=10),
+                maximum_attempts=5,
+                backoff_coefficient=2.0,
             ),
         )
 
-        workflow.logger.info(f"✅ Discovered {len(invoices)} invoices from {len(flow_strings)} flows")
+        workflow.logger.info(f"✅ Excel Discovery: Found {len(invoices)} invoices")
         return invoices
 
     async def _fetch_all_invoices(self) -> None:
@@ -221,10 +323,13 @@ class GdtInvoiceImportWorkflow:
 
     async def _process_invoice_batches(self) -> list[InvoiceFetchResult]:
         """Process invoices in adaptive batches with intelligent sizing."""
-        config = BatchConfig()
+        # Get processing mode from workflow parameters
+        processing_mode = getattr(self, 'processing_mode', 'sequential')
+        config = BatchConfig(processing_mode=processing_mode)
         all_results = []
         
-        workflow.logger.info(f"📦 Processing {len(self.invoices)} invoices in batches of {config.batch_size}")
+        mode_text = "SEQUENTIAL" if processing_mode == "sequential" else "PARALLEL"
+        workflow.logger.info(f"📦 Processing {len(self.invoices)} invoices in {mode_text} mode (batch size: {config.batch_size})")
         
         for i in range(0, len(self.invoices), config.batch_size):
             batch = self.invoices[i:i + config.batch_size]

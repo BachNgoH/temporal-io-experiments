@@ -11,7 +11,7 @@ from temporalio.client import Client, TLSConfig
 from temporalio.worker import Worker
 
 from app.config import settings
-from temporal_app.activities import discover_invoices, fetch_invoice, login_to_gdt
+from temporal_app.activities import discover_invoices, discover_invoices_excel, fetch_invoice, login_to_gdt
 from temporal_app.workflows import GdtInvoiceImportWorkflow
 
 # Setup logging
@@ -71,6 +71,7 @@ class TemporalWorker:
             activities=[
                 login_to_gdt,
                 discover_invoices,
+                discover_invoices_excel,
                 fetch_invoice,
                 # Add future activities here
             ],

@@ -44,6 +44,53 @@ async def fetch_invoice(
     Returns:
         InvoiceFetchResult with JSON content or error
     """
+    # Handle case where arguments are passed as a list (serialization issue)
+    if isinstance(invoice, list):
+        activity.logger.error(f"Received list instead of GdtInvoice: {invoice}")
+        if len(invoice) != 2:
+            return InvoiceFetchResult(
+                invoice_id="unknown",
+                success=False,
+                error=f"Invalid argument format: expected [invoice, session], got {len(invoice)} items",
+            )
+        actual_invoice = invoice[0]
+        actual_session = invoice[1]
+        activity.logger.info(f"Extracted invoice and session from list for invoice {actual_invoice.get('invoice_id', 'unknown')}")
+        invoice = actual_invoice
+        session = actual_session
+    
+    # Handle case where invoice is a dictionary (serialization issue)
+    if isinstance(invoice, dict):
+        activity.logger.info(f"Converting dictionary to GdtInvoice for invoice {invoice.get('invoice_id', 'unknown')}")
+        # Convert dictionary to GdtInvoice-like object
+        class DictInvoice:
+            def __init__(self, data):
+                self.invoice_id = data.get('invoice_id', '')
+                self.invoice_number = data.get('invoice_number', '')
+                self.invoice_date = data.get('invoice_date', '')
+                self.invoice_type = data.get('invoice_type', '')
+                self.amount = data.get('amount', 0)
+                self.tax_amount = data.get('tax_amount', 0)
+                self.supplier_name = data.get('supplier_name', '')
+                self.supplier_tax_code = data.get('supplier_tax_code', '')
+                self.metadata = data.get('metadata', {})
+        
+        invoice = DictInvoice(invoice)
+    
+    # Handle case where session is a dictionary (serialization issue)
+    if isinstance(session, dict):
+        activity.logger.info(f"Converting dictionary to GdtSession")
+        # Convert dictionary to GdtSession-like object
+        class DictSession:
+            def __init__(self, data):
+                self.company_id = data.get('company_id', '')
+                self.session_id = data.get('session_id', '')
+                self.access_token = data.get('access_token', '')
+                self.cookies = data.get('cookies', {})
+                self.expires_at = data.get('expires_at', '')
+        
+        session = DictSession(session)
+
     activity.logger.info(f"📄 Fetching invoice details: {invoice.invoice_id}")
 
     # Extract invoice parameters from metadata
@@ -51,6 +98,8 @@ async def fetch_invoice(
     khhdon = invoice.metadata.get("khhdon", "")
     shdon = invoice.invoice_number
     khmshdon = invoice.metadata.get("khmshdon", "1")
+
+    activity.logger.info(f"📋 Invoice parameters: nbmst={nbmst}, khhdon={khhdon}, shdon={shdon}, khmshdon={khmshdon}")
 
     if not all([nbmst, khhdon, shdon]):
         activity.logger.error(
@@ -87,6 +136,11 @@ async def fetch_invoice(
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
     }
 
+    # Build full URL with parameters for logging
+    from urllib.parse import urlencode
+    full_url = f"{detail_url}?{urlencode(params)}"
+    activity.logger.info(f"🔗 Request URL: {full_url}")
+
     # Fetch invoice details (Temporal handles retries)
     try:
         async with httpx.AsyncClient(
@@ -109,33 +163,44 @@ async def fetch_invoice(
 
             # Success - process response
             if response.status_code == 200:
-                invoice_detail = response.json()
+                try:
+                    # Check if response has content
+                    if not response.content:
+                        activity.logger.error(f"Empty response content for invoice {invoice.invoice_id}")
+                        activity.logger.error(f"Request URL: {full_url}")
+                        activity.logger.error(f"Response status: {response.status_code}")
+                        activity.logger.error(f"Response headers: {dict(response.headers)}")
+                        raise Exception(f"Empty response content from detail API for invoice {invoice.invoice_id}")
+                    
+                    # Try to parse JSON
+                    invoice_detail = response.json()
+                    
+                    if invoice_detail:
+                        # Extract line items from hdhhdvu field
+                        line_items = invoice_detail.get("hdhhdvu", [])
+                        activity.logger.info(
+                            f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
+                        )
 
-                if invoice_detail:
-                    # Extract line items from hdhhdvu field
-                    line_items = invoice_detail.get("hdhhdvu", [])
-                    activity.logger.info(
-                        f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
-                    )
-
-                    return InvoiceFetchResult(
-                        invoice_id=invoice.invoice_id,
-                        success=True,
-                        data={
-                            "invoice_id": invoice.invoice_id,
-                            "invoice_number": invoice.invoice_number,
-                            "invoice_detail": invoice_detail,  # Full JSON response
-                            "line_items": line_items,  # Invoice line items (hdhhdvu)
-                            "metadata": invoice.metadata,
-                        },
-                    )
-                else:
-                    activity.logger.error("Empty response from detail API")
-                    return InvoiceFetchResult(
-                        invoice_id=invoice.invoice_id,
-                        success=False,
-                        error="Empty response from detail API",
-                    )
+                        return InvoiceFetchResult(
+                            invoice_id=invoice.invoice_id,
+                            success=True,
+                            data={
+                                "invoice_id": invoice.invoice_id,
+                                "invoice_number": invoice.invoice_number,
+                                "invoice_detail": invoice_detail,  # Full JSON response
+                                "line_items": line_items,  # Invoice line items (hdhhdvu)
+                                "metadata": invoice.metadata,
+                            },
+                        )
+                    else:
+                        activity.logger.error(f"Empty JSON response for invoice {invoice.invoice_id}, Response: {response.text[:500]}, Request URL: {full_url}, Response status: {response.status_code}, Raw Response: {response}")
+                        raise Exception(f"Empty JSON response from detail API for invoice {invoice.invoice_id}")
+                        
+                        
+                except Exception as json_error:
+                    activity.logger.error(f"JSON parsing failed for invoice {invoice.invoice_id}: {str(json_error)}, Request URL: {full_url}, Response status: {response.status_code}")
+                    raise Exception(f"JSON parsing failed for invoice {invoice.invoice_id}: {str(json_error)}")
 
             # Auth error
             if response.status_code in (401, 403):
