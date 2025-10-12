@@ -1,0 +1,57 @@
+# Cloud Run Job configuration for BURST workers
+# Deploy with: gcloud run jobs replace cloud-run-job.yaml
+
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: temporal-worker-burst
+  labels:
+    mode: burst
+spec:
+  template:
+    metadata:
+      annotations:
+        # Max execution time: 1 hour
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      # Number of parallel workers (set at execution time)
+      parallelism: 10
+      taskCount: 10
+
+      template:
+        spec:
+          containers:
+          - name: worker
+            # Image from Container Registry
+            image: gcr.io/YOUR_PROJECT_ID/temporal-worker:latest
+
+            env:
+            - name: WORKER_MODE
+              value: "burst"
+
+            # Point to Temporal Server on Compute Engine
+            - name: TEMPORAL_HOST
+              value: "YOUR_COMPUTE_ENGINE_IP:7233"
+
+            - name: TEMPORAL_NAMESPACE
+              value: "default"
+
+            - name: TEMPORAL_TASK_QUEUE
+              value: "default-task-queue"
+
+            resources:
+              limits:
+                cpu: "2"
+                memory: "2Gi"
+              requests:
+                cpu: "1"
+                memory: "1Gi"
+
+          # Max execution time per task
+          timeoutSeconds: 3600  # 1 hour
+
+          # Restart policy: Never (job completes when done)
+          restartPolicy: Never
+
+          # Service account (for GCP permissions if needed)
+          serviceAccountName: temporal-worker@YOUR_PROJECT_ID.iam.gserviceaccount.com

@@ -1,0 +1,101 @@
+services:
+  # PostgreSQL - For Temporal state storage
+  postgresql:
+    image: postgres:15-alpine
+    container_name: temporal-postgres
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+    ports:
+      - "5432:5432"
+    volumes:
+      - temporal-postgres-data:/var/lib/postgresql/data
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Temporal Server
+  temporal:
+    image: temporalio/auto-setup:1.22.4
+    container_name: temporal-server
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+    ports:
+      - "7233:7233"  # Temporal gRPC
+    networks:
+      - temporal-network
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Temporal Web UI
+  temporal-ui:
+    image: temporalio/ui:2.21.3
+    container_name: temporal-ui
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    ports:
+      - "8080:8080"  # Web UI
+    networks:
+      - temporal-network
+
+  # FastAPI Application (Stateless)
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.api
+    container_name: temporal-api
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_HOST=temporal:7233
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=default-task-queue
+    ports:
+      - "8000:8000"
+    networks:
+      - temporal-network
+    restart: unless-stopped
+
+  # Base Workers (Always Running - 2 instances)
+  temporal-worker:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.worker
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - WORKER_MODE=base
+      - TEMPORAL_HOST=temporal:7233
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=default-task-queue
+    networks:
+      - temporal-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2  # 2 base workers always running
+
+networks:
+  temporal-network:
+    driver: bridge
+
+volumes:
+  temporal-postgres-data:
