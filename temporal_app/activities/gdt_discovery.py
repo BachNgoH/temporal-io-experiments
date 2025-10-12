@@ -208,9 +208,11 @@ async def _make_api_request(
                         cookies=cookies,
                     )
 
-                    # Handle rate limiting
+                    # Handle rate limiting - let Temporal retry with exponential backoff
                     if response.status_code == 429:
-                        activity.logger.warning(f"Rate limited (429) on {flow_name}, Temporal will retry")
+                        activity.logger.warning(f"Rate limited (429) on {flow_name} - Temporal will retry")
+                        # Let Temporal handle the retry with exponential backoff
+                        # No manual backoff needed - GDT will clear the rate limit
                         raise GDTDiscoveryError(f"Rate limit exceeded (429) for {flow_name}")
 
                     # Auth error

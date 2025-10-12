@@ -104,9 +104,11 @@ async def login_to_gdt(request: GdtLoginRequest) -> GdtSession:
                 headers=headers,
             )
 
-            # Handle rate limiting
+            # Handle rate limiting - let Temporal retry with exponential backoff
             if response.status_code == 429:
-                activity.logger.warning("Rate limited (429), Temporal will retry")
+                activity.logger.warning("Rate limited (429) - Temporal will retry")
+                # Let Temporal handle the retry with exponential backoff
+                # No manual backoff needed - GDT will clear the rate limit
                 raise GDTAuthError("Rate limit exceeded (429)")
 
             # Success
@@ -212,14 +214,17 @@ async def _fetch_and_solve_captcha(activity) -> tuple[str | None, str | None]:
 
 async def _solve_captcha_with_gemini(svg_content: str, activity) -> str | None:
     """
-    Solve CAPTCHA using Google Gemini AI.
+    Solve CAPTCHA using Google Gemini AI with enhanced image processing.
 
-    Based on auth_code.py implementation.
+    Based on auth_code.py implementation with white background optimization.
     """
     try:
-        # Convert SVG to PNG
-        activity.logger.info("📸 Converting SVG CAPTCHA to PNG...")
-        png_data = cairosvg.svg2png(bytestring=svg_content.encode('utf-8'))
+        # Convert SVG to PNG with white background (critical for better recognition)
+        activity.logger.info("📸 Converting SVG CAPTCHA to PNG with white background...")
+        png_data = cairosvg.svg2png(
+            bytestring=svg_content.encode('utf-8'),
+            background_color='white'  # Ensure white background for better CAPTCHA recognition
+        )
         activity.logger.info(f"✅ PNG conversion successful ({len(png_data)} bytes)")
 
         # Initialize Gemini client
@@ -243,26 +248,38 @@ async def _solve_captcha_with_gemini(svg_content: str, activity) -> str | None:
 
         activity.logger.info("✅ Gemini client initialized successfully")
 
-        # Prepare prompt
-        prompt = """You are a CAPTCHA solver. Look at this image and extract ONLY the text/numbers you see.
+        # Enhanced prompt (matching auth_code.py)
+        prompt = (
+            "This is a CAPTCHA image from a Vietnamese government website. "
+            "Please read and return ONLY the code (usually 5-7 characters, mix of letters and numbers). "
+            "The code contains mostly lowercase letters and numbers. "
+            "Common characters include: a-z, A-Z, 0-9. "
+            "Do not return any explanation, just the code."
+        )
 
-Rules:
-1. Return ONLY the characters you see in the image
-2. No explanations, no punctuation, no extra text
-3. If you see letters and numbers, return them exactly as shown
-4. The text is typically 4-6 characters
-5. Be case-sensitive
-
-Example response format: AB3C9D
-"""
-
-        # Load PNG data as PIL Image (required by genai SDK)
+        # Load and optimize PNG data as PIL Image (matching auth_code.py processing)
         from PIL import Image
         import io
         img = Image.open(io.BytesIO(png_data))
         activity.logger.info("✅ PNG loaded as PIL Image")
 
-        # Call Gemini with image (matching auth_code.py pattern)
+        # Ensure white background and optimize image (critical step from auth_code.py)
+        if img.mode in ('RGBA', 'LA', 'P'):
+            # Create white background
+            white_bg = Image.new('RGB', img.size, 'white')
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            white_bg.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+            img = white_bg
+            activity.logger.info("✅ Applied white background optimization")
+        elif img.mode != 'RGB':
+            # Convert other modes to RGB with white background
+            white_bg = Image.new('RGB', img.size, 'white')
+            white_bg.paste(img)
+            img = white_bg
+            activity.logger.info("✅ Converted to RGB with white background")
+
+        # Call Gemini with optimized image
         activity.logger.info("🔮 Calling Gemini API to solve CAPTCHA...")
 
         # Run in thread to avoid blocking (as done in auth_code.py)
@@ -276,11 +293,17 @@ Example response format: AB3C9D
         response = await asyncio.to_thread(generate_content)
         activity.logger.info("✅ Gemini API call successful")
 
-        # Extract result
-        if response and response.text:
-            captcha_code = response.text.strip()
-            activity.logger.info(f"🤖 Gemini solved CAPTCHA: '{captcha_code}' (length: {len(captcha_code)})")
-            return captcha_code
+        # Extract and validate result (matching auth_code.py validation)
+        if response and hasattr(response, 'text') and response.text:
+            captcha_code = response.text.strip().split("\n")[0]  # Take first line only
+            
+            # Basic validation - should be 5-7 alphanumeric characters (from auth_code.py)
+            if captcha_code and len(captcha_code) >= 5 and captcha_code.isalnum():
+                activity.logger.info(f"🤖 Gemini solved CAPTCHA: '{captcha_code}' (length: {len(captcha_code)})")
+                return captcha_code
+            else:
+                activity.logger.warning(f"🤖 Invalid CAPTCHA format: '{captcha_code}' (length: {len(captcha_code) if captcha_code else 0})")
+                return None
 
         activity.logger.error(f"❌ Gemini returned empty response. Response object: {response}")
         return None

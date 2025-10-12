@@ -45,11 +45,41 @@ app = FastAPI(
 @app.get("/")
 async def root() -> dict[str, str]:
     """Health check endpoint."""
+    temporal_status = "connected" if temporal_client else "disconnected"
     return {
         "app": settings.app_name,
         "version": settings.app_version,
         "status": "healthy",
+        "temporal_status": temporal_status,
+        "temporal_host": settings.temporal_host,
     }
+
+
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    """Detailed health check including Temporal connection."""
+    if not temporal_client:
+        return {
+            "status": "unhealthy",
+            "error": "Temporal client not initialized",
+            "temporal_status": "disconnected",
+        }
+    
+    try:
+        # Test Temporal connection by listing workflows (lightweight operation)
+        await temporal_client.list_workflows().next()
+        return {
+            "status": "healthy",
+            "temporal_status": "connected",
+            "temporal_host": settings.temporal_host,
+            "temporal_namespace": settings.temporal_namespace,
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": f"Temporal connection failed: {str(e)}",
+            "temporal_status": "error",
+        }
 
 
 @app.post("/api/tasks/start")
@@ -66,8 +96,30 @@ async def start_task(request: TaskRequest) -> TaskResponse:
     workflow_class = _get_workflow_class(request.task_type)
     workflow_id = _generate_workflow_id(request.task_type, request.task_params)
 
+    print(f"🚀 Starting workflow: {workflow_id}")
+    print(f"📋 Task params: {request.task_params}")
+
     try:
+        # Check if workflow already exists (idempotency check)
+        try:
+            existing_handle = temporal_client.get_workflow_handle(workflow_id)
+            description = await existing_handle.describe()
+            print(f"⚠️ Workflow {workflow_id} already exists with status: {description.status.name}")
+            
+            # If workflow is already running, return success
+            if description.status.name in ["RUNNING", "PENDING"]:
+                return TaskResponse(
+                    workflow_id=workflow_id,
+                    task_type=request.task_type,
+                    status=TaskStatus.RUNNING,
+                    message=f"Task {request.task_type.value} already running",
+                )
+        except Exception:
+            # Workflow doesn't exist, continue to create new one
+            pass
+
         # Start workflow (idempotent - same ID won't create duplicate)
+        print(f"🔄 Creating new workflow: {workflow_id}")
         handle = await temporal_client.start_workflow(
             workflow_class.run,
             request.task_params,
@@ -79,6 +131,7 @@ async def start_task(request: TaskRequest) -> TaskResponse:
             },
         )
 
+        print(f"✅ Workflow started successfully: {workflow_id}")
         return TaskResponse(
             workflow_id=workflow_id,
             task_type=request.task_type,
@@ -87,6 +140,10 @@ async def start_task(request: TaskRequest) -> TaskResponse:
         )
 
     except Exception as e:
+        print(f"❌ Failed to start workflow {workflow_id}: {str(e)}")
+        print(f"❌ Error type: {type(e).__name__}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to start task: {str(e)}")
 
 
@@ -192,17 +249,23 @@ def _get_workflow_class(task_type: TaskType) -> Any:
 
 def _generate_workflow_id(task_type: TaskType, params: dict[str, Any]) -> str:
     """Generate deterministic workflow ID for idempotency."""
+    import time
+    
     if task_type == TaskType.GDT_INVOICE_IMPORT:
+        # Add timestamp to make workflow ID unique for concurrent requests
+        timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
         return (
             f"{task_type.value}-"
             f"{params['company_id']}-"
             f"{params['date_range_start']}-"
-            f"{params['date_range_end']}"
+            f"{params['date_range_end']}-"
+            f"{timestamp}"
         )
 
-    # Default: use task type + company_id if available
+    # Default: use task type + company_id + timestamp if available
     company_id = params.get("company_id", "unknown")
-    return f"{task_type.value}-{company_id}"
+    timestamp = int(time.time() * 1000)
+    return f"{task_type.value}-{company_id}-{timestamp}"
 
 
 def _extract_task_type_from_workflow_id(workflow_id: str) -> TaskType:

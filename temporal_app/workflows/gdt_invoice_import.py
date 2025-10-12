@@ -2,6 +2,7 @@
 
 import asyncio
 from datetime import timedelta
+from dataclasses import dataclass
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
@@ -12,6 +13,47 @@ with workflow.unsafe.imports_passed_through():
     from temporal_app.models import GdtInvoice, GdtLoginRequest, GdtSession, InvoiceFetchResult
 
 
+@dataclass
+class BatchConfig:
+    """Configuration for batch processing with adaptive sizing."""
+    batch_size: int = 8
+    min_batch_size: int = 3
+    max_batch_size: int = 10
+    delay: float = 1.0
+    base_delay: float = 1.0
+    
+    def reduce_batch_size(self) -> None:
+        """Reduce batch size when hitting rate limits."""
+        self.batch_size = max(self.min_batch_size, self.batch_size - 2)
+    
+    def increase_batch_size(self) -> None:
+        """Increase batch size when performing well."""
+        self.batch_size = min(self.max_batch_size, self.batch_size + 1)
+    
+    def increase_delay(self, rate_limit_errors: int) -> None:
+        """Increase delay based on rate limit errors."""
+        self.delay = min(5.0, self.base_delay * (1 + rate_limit_errors))
+    
+    def reset_delay(self) -> None:
+        """Reset delay to base value."""
+        self.delay = self.base_delay
+
+
+@dataclass
+class RetryConfig:
+    """Configuration for retry processing."""
+    batch_size: int = 3
+    delay: float = 3.0
+
+
+@dataclass
+class BatchStats:
+    """Statistics for a batch of invoice processing results."""
+    successes: int = 0
+    failures: int = 0
+    rate_limit_errors: int = 0
+
+
 @workflow.defn
 class GdtInvoiceImportWorkflow:
     """
@@ -19,11 +61,12 @@ class GdtInvoiceImportWorkflow:
 
     Architecture: Login → Discover → Fetch (with concurrency control)
 
-    Rate Limiting Strategy:
-    - Activities detect 429 and throw RateLimitError
-    - Temporal retries with exponential backoff (automatic spread)
-    - Workflow-level concurrency control (max 10 concurrent per company)
-    - Activities use shared rate limit state (prevents cascade failures)
+    Smart Batch Processing Strategy:
+    - Process invoices in adaptive batches (3-15 invoices per batch)
+    - Wait for batch completion before starting next batch
+    - Adaptive batch sizing based on success/failure rates
+    - Conservative retry policy to avoid retry exhaustion
+    - Optional retry phase for failed invoices
 
     This is designed to be extensible - future task types can follow
     the same pattern:
@@ -156,87 +199,208 @@ class GdtInvoiceImportWorkflow:
 
     async def _fetch_all_invoices(self) -> None:
         """
-        Fetch all invoices with concurrency control.
-
-        Rate Limiting Strategy:
-        - Workflow-level: max 10 concurrent fetches per workflow (via semaphore)
-        - Activity-level: Activities check rate limit before fetching
-        - Temporal retry: Exponential backoff spreads retries automatically
-        - Shared state: Activities coordinate via Temporal signals/queries
-
-        Why this works:
-        1. Semaphore prevents too many concurrent requests
-        2. When 429 occurs, that activity retries with backoff
-        3. Other activities continue (not blocked)
-        4. Exponential backoff spreads retries naturally
-        5. Eventually all invoices complete
-
-        Example:
-        - 100 invoices, 10 concurrent
-        - Invoice #5 hits 429 → retries in 10s, 20s, 40s...
-        - Invoices #6-10 continue normally
-        - When invoice #5 retries, others may have finished (less contention)
+        Fetch all invoices using smart batch processing to avoid 429 cascades.
+        
+        This method orchestrates the entire invoice fetching process:
+        1. Process invoices in adaptive batches
+        2. Retry failed invoices with smaller batches
+        3. Update progress tracking throughout
         """
-        # Concurrency limit: 10 invoices at a time per workflow
-        # Adjust based on:
-        # - GDT rate limits (e.g., 100 req/min → ~10 concurrent is safe)
-        # - Worker capacity
-        # - Number of concurrent workflows
-        max_concurrent = 10
-        semaphore = asyncio.Semaphore(max_concurrent)
-
-        async def fetch_with_semaphore(invoice: GdtInvoice) -> InvoiceFetchResult:
-            async with semaphore:
-                return await self._fetch_single_invoice(invoice)
-
-        # Execute all fetches in parallel (with concurrency limit)
-        tasks = [fetch_with_semaphore(invoice) for invoice in self.invoices]
-
-        self.results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # Count successes/failures
-        for result in self.results:
-            if isinstance(result, InvoiceFetchResult):
-                if result.success:
-                    self.completed_invoices += 1
-                else:
-                    self.failed_invoices += 1
-            else:
-                # Exception occurred
-                self.failed_invoices += 1
-
+        workflow.logger.info(f"🚀 Starting invoice fetch: {len(self.invoices)} invoices")
+        
+        # Phase 1: Main batch processing
+        self.results = await self._process_invoice_batches()
+        
+        # Phase 2: Retry failed invoices
+        await self._retry_failed_invoices()
+        
         workflow.logger.info(
-            f"✅ Fetch complete: {self.completed_invoices} succeeded, "
+            f"✅ Final results: {self.completed_invoices} succeeded, "
             f"{self.failed_invoices} failed"
         )
 
+    async def _process_invoice_batches(self) -> list[InvoiceFetchResult]:
+        """Process invoices in adaptive batches with intelligent sizing."""
+        config = BatchConfig()
+        all_results = []
+        
+        workflow.logger.info(f"📦 Processing {len(self.invoices)} invoices in batches of {config.batch_size}")
+        
+        for i in range(0, len(self.invoices), config.batch_size):
+            batch = self.invoices[i:i + config.batch_size]
+            batch_num = (i // config.batch_size) + 1
+            total_batches = (len(self.invoices) + config.batch_size - 1) // config.batch_size
+            
+            # Process single batch
+            batch_results = await self._process_single_batch(batch, batch_num, total_batches)
+            all_results.extend(batch_results)
+            
+            # Update batch configuration based on results
+            config = self._update_batch_config(config, batch_results)
+            
+            # Wait before next batch (except for last batch)
+            if i + config.batch_size < len(self.invoices):
+                await asyncio.sleep(config.delay)
+        
+        return all_results
+
+    async def _process_single_batch(self, batch: list[GdtInvoice], batch_num: int, total_batches: int) -> list[InvoiceFetchResult]:
+        """Process a single batch of invoices - waits for ALL invoices to complete before returning."""
+        workflow.logger.info(f"📦 Processing batch {batch_num}/{total_batches}: {len(batch)} invoices")
+        
+        # Execute all invoices in the batch - WAIT for ALL to complete
+        batch_tasks = [self._fetch_single_invoice(invoice) for invoice in batch]
+        workflow.logger.info(f"⏳ Waiting for all {len(batch)} invoices in batch {batch_num} to complete...")
+        batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
+        
+        # Analyze and log results
+        batch_stats = self._analyze_batch_results(batch_results)
+        self._update_progress(batch_stats)
+        
+        workflow.logger.info(
+            f"✅ Batch {batch_num} COMPLETED - all {len(batch)} invoices finished: "
+            f"{batch_stats.successes} success, {batch_stats.failures} failed "
+            f"(429 errors: {batch_stats.rate_limit_errors})"
+        )
+        
+        return batch_results
+
+    def _analyze_batch_results(self, batch_results: list) -> BatchStats:
+        """Analyze batch results and return statistics."""
+        stats = BatchStats()
+        
+        for result in batch_results:
+            if isinstance(result, InvoiceFetchResult):
+                if result.success:
+                    stats.successes += 1
+                else:
+                    stats.failures += 1
+                    if self._is_rate_limit_error(result.error):
+                        stats.rate_limit_errors += 1
+            else:
+                stats.failures += 1
+        
+        return stats
+
+    def _is_rate_limit_error(self, error: str) -> bool:
+        """Check if error is a rate limit error."""
+        if not error:
+            return False
+        error_str = str(error).lower()
+        return "429" in error_str or "rate limit" in error_str
+
+    def _update_progress(self, batch_stats: BatchStats) -> None:
+        """Update workflow progress counters."""
+        self.completed_invoices += batch_stats.successes
+        self.failed_invoices += batch_stats.failures
+
+    def _update_batch_config(self, config: BatchConfig, batch_results: list) -> BatchConfig:
+        """Update batch configuration based on results."""
+        batch_stats = self._analyze_batch_results(batch_results)
+        
+        # Adjust batch size based on rate limiting
+        if batch_stats.rate_limit_errors > 0:
+            config.reduce_batch_size()
+            workflow.logger.info(f"📉 Reduced batch size to {config.batch_size} due to rate limiting")
+        elif batch_stats.successes >= len(batch_results) * 0.8:  # 80% success rate
+            config.increase_batch_size()
+            workflow.logger.info(f"📈 Increased batch size to {config.batch_size} due to good performance")
+        
+        # Adjust delay based on rate limiting
+        if batch_stats.rate_limit_errors > 0:
+            config.increase_delay(batch_stats.rate_limit_errors)
+            workflow.logger.info(f"⏳ Extended delay to {config.delay:.1f}s due to rate limiting")
+        else:
+            config.reset_delay()
+        
+        return config
+
+    async def _retry_failed_invoices(self) -> None:
+        """Retry failed invoices in smaller batches."""
+        failed_invoices = self._get_failed_invoices()
+        
+        if not failed_invoices:
+            return
+        
+        workflow.logger.info(f"🔄 Retrying {len(failed_invoices)} failed invoices")
+        
+        retry_config = RetryConfig()
+        
+        for i in range(0, len(failed_invoices), retry_config.batch_size):
+            retry_batch = failed_invoices[i:i + retry_config.batch_size]
+            retry_batch_num = (i // retry_config.batch_size) + 1
+            total_retry_batches = (len(failed_invoices) + retry_config.batch_size - 1) // retry_config.batch_size
+            
+            await self._process_retry_batch(retry_batch, retry_batch_num, total_retry_batches)
+            
+            # Wait before next retry batch
+            if i + retry_config.batch_size < len(failed_invoices):
+                await asyncio.sleep(retry_config.delay)
+
+    def _get_failed_invoices(self) -> list[GdtInvoice]:
+        """Get list of invoices that failed in the main processing."""
+        failed_invoices = []
+        
+        for i, result in enumerate(self.results):
+            if isinstance(result, InvoiceFetchResult) and not result.success:
+                failed_invoices.append(self.invoices[i])
+            elif not isinstance(result, InvoiceFetchResult):
+                failed_invoices.append(self.invoices[i])
+        
+        return failed_invoices
+
+    async def _process_retry_batch(self, retry_batch: list[GdtInvoice], batch_num: int, total_batches: int) -> None:
+        """Process a single retry batch - waits for ALL invoices to complete before returning."""
+        workflow.logger.info(f"🔄 Retry batch {batch_num}/{total_batches}: {len(retry_batch)} invoices")
+        
+        # Execute retry batch - WAIT for ALL to complete
+        retry_tasks = [self._fetch_single_invoice(invoice) for invoice in retry_batch]
+        workflow.logger.info(f"⏳ Waiting for all {len(retry_batch)} invoices in retry batch {batch_num} to complete...")
+        retry_results = await asyncio.gather(*retry_tasks, return_exceptions=True)
+        
+        # Update results for successful retries
+        retry_successes = 0
+        retry_failures = 0
+        
+        for j, retry_result in enumerate(retry_results):
+            original_index = self.invoices.index(retry_batch[j])
+            
+            if isinstance(retry_result, InvoiceFetchResult) and retry_result.success:
+                self.results[original_index] = retry_result
+                retry_successes += 1
+                self.completed_invoices += 1
+                self.failed_invoices -= 1
+            else:
+                retry_failures += 1
+        
+        workflow.logger.info(f"✅ Retry batch {batch_num} COMPLETED - all {len(retry_batch)} invoices finished: {retry_successes} success, {retry_failures} failed")
+
     async def _fetch_single_invoice(self, invoice: GdtInvoice) -> InvoiceFetchResult:
         """
-        Fetch single invoice with retry logic.
+        Fetch single invoice with conservative retry logic for batch processing.
 
-        Retry Policy Explanation:
-        - initial_interval=5s: First retry after 5 seconds
-        - maximum_interval=5min: Cap retry delay at 5 minutes
-        - maximum_attempts=7: Try up to 7 times total
-        - backoff_coefficient=2.0: Double delay each retry (5s, 10s, 20s, 40s, 80s, 160s, 300s)
+        Conservative Retry Policy for Batch Processing:
+        - initial_interval=5s: Longer initial delay to avoid retry storms
+        - maximum_interval=30s: Shorter max wait to fail fast in batches
+        - maximum_attempts=5: Fewer attempts to avoid blocking batch
+        - backoff_coefficient=2.0: Standard exponential backoff
 
-        This exponential backoff naturally spreads out retries:
-        - 100 invoices hit 429 at t=0
-        - Retry 1: spread over 5s window (not all at same time)
-        - Retry 2: spread over 10s window
-        - Retry 3: spread over 20s window
-        - Eventually rate limit clears
+        Why this works better with batch processing:
+        - Longer initial delay prevents immediate retry storms
+        - Fewer attempts means failed invoices don't block the batch
+        - Shorter max wait allows batch to complete faster
+        - Failed invoices can be retried in subsequent batches
         """
         try:
             result = await workflow.execute_activity(
                 fetch_invoice,
                 args=[invoice, self.session],
-                start_to_close_timeout=timedelta(minutes=10),  # Total time including retries
+                start_to_close_timeout=timedelta(minutes=5),  # Shorter timeout for batch processing
                 retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=5),
-                    maximum_interval=timedelta(minutes=5),
-                    maximum_attempts=7,
-                    backoff_coefficient=2.0,
+                    initial_interval=timedelta(seconds=5),  # Longer initial delay
+                    maximum_interval=timedelta(seconds=30),  # Shorter max wait
+                    maximum_attempts=5,  # Fewer attempts
+                    backoff_coefficient=2.0,  # Standard backoff
                 ),
             )
             return result

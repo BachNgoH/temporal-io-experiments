@@ -16,62 +16,7 @@ GDT_DETAIL_SCO_URL = f"{GDT_BASE_URL}/sco-query/invoices/detail"
 # ============================================================================
 # Configuration
 # ============================================================================
-MAX_RETRIES = 3
-RETRY_DELAY_SECONDS = 2.0
 REQUEST_TIMEOUT_SECONDS = 30.0
-RATE_LIMIT_BACKOFF_SECONDS = 30
-
-# ============================================================================
-# Shared Rate Limit State (In-Memory)
-# ============================================================================
-# In production: Use Redis or Temporal's own state management
-# For now: Simple in-memory dict shared across all activities in same worker
-
-_rate_limit_state: dict[str, datetime] = {}
-
-
-class RateLimitError(Exception):
-    """Raised when rate limit is detected (429)."""
-
-    pass
-
-
-async def check_rate_limit(company_id: str) -> bool:
-    """
-    Check if we're currently rate limited for this company.
-
-    Returns:
-        bool: True if OK to proceed, False if rate limited
-
-    In production:
-    - Use Redis with TTL for distributed rate limit tracking
-    - Store backoff_until timestamp
-    - All workers check same Redis key
-    """
-    backoff_until = _rate_limit_state.get(company_id)
-
-    if backoff_until and datetime.now() < backoff_until:
-        wait_seconds = (backoff_until - datetime.now()).total_seconds()
-        activity.logger.warning(
-            f"Rate limited for {company_id}, backing off for {wait_seconds:.1f}s"
-        )
-        return False
-
-    return True
-
-
-async def set_rate_limit_backoff(company_id: str, backoff_seconds: int) -> None:
-    """
-    Set rate limit backoff for this company.
-
-    In production:
-    - Store in Redis with TTL
-    - Use exponential backoff based on consecutive 429s
-    """
-    backoff_until = datetime.now() + timedelta(seconds=backoff_seconds)
-    _rate_limit_state[company_id] = backoff_until
-
-    activity.logger.warning(f"Setting rate limit backoff for {company_id}: {backoff_seconds}s")
 
 
 @activity.defn
@@ -83,16 +28,14 @@ async def fetch_invoice(
     Fetch detailed invoice JSON from GDT portal.
 
     Flow:
-    1. Check shared rate limit state
-    2. Build detail API URL with invoice parameters
-    3. Download invoice JSON with full details including line items (hdhhdvu)
-    4. Return invoice data with JSON content
+    1. Build detail API URL with invoice parameters
+    2. Download invoice JSON with full details including line items (hdhhdvu)
+    3. Return invoice data with JSON content
 
     Rate Limiting Strategy:
-    - Check state before making request
-    - If 429 → set backoff and raise RateLimitError
-    - Temporal retries with exponential backoff
-    - Other concurrent fetches see backoff state and wait
+    - Let GDT handle their own rate limiting (429 responses)
+    - Temporal automatically retries with exponential backoff
+    - No manual rate limiting - trust GDT's rate limit headers
 
     Args:
         invoice: GdtInvoice with invoice_id, metadata (khhdon, nbmst, etc.)
@@ -102,10 +45,6 @@ async def fetch_invoice(
         InvoiceFetchResult with JSON content or error
     """
     activity.logger.info(f"📄 Fetching invoice details: {invoice.invoice_id}")
-
-    # Check if we're currently rate limited (shared state)
-    if not await check_rate_limit(session.company_id):
-        raise RateLimitError(f"Rate limited for company {session.company_id}")
 
     # Extract invoice parameters from metadata
     nbmst = invoice.supplier_tax_code or invoice.metadata.get("nbmst", "")
@@ -161,14 +100,12 @@ async def fetch_invoice(
                 cookies=session.cookies,
             )
 
-            # Handle rate limiting
+            # Handle rate limiting - let Temporal retry with exponential backoff
             if response.status_code == 429:
-                activity.logger.warning(f"Rate limited (429) for invoice {invoice.invoice_id}")
-                await set_rate_limit_backoff(
-                    session.company_id,
-                    backoff_seconds=RATE_LIMIT_BACKOFF_SECONDS,
-                )
-                raise RateLimitError(f"Rate limit exceeded (429) for invoice {invoice.invoice_id}")
+                activity.logger.warning(f"Rate limited (429) for invoice {invoice.invoice_id} - Temporal will retry")
+                # Let Temporal handle the retry with exponential backoff
+                # No manual backoff needed - GDT will clear the rate limit
+                raise Exception(f"Rate limit exceeded (429) for invoice {invoice.invoice_id}")
 
             # Success - process response
             if response.status_code == 200:
@@ -213,8 +150,8 @@ async def fetch_invoice(
             activity.logger.error(
                 f"Download failed for {invoice.invoice_id} ({response.status_code}): {response.text[:200]}"
             )
-            raise RateLimitError(f"Download failed: HTTP {response.status_code}")
+            raise Exception(f"Download failed: HTTP {response.status_code}")
 
     except httpx.RequestError as e:
         activity.logger.error(f"Network error for invoice {invoice.invoice_id}: {str(e)}")
-        raise RateLimitError(f"Network error: {str(e)}")
+        raise Exception(f"Network error: {str(e)}")

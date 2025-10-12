@@ -112,24 +112,29 @@ class TemporalWorker:
         Get concurrency settings based on deployment mode.
 
         BASE MODE (Compute Engine):
-        - Lower concurrency per worker
+        - Higher concurrency per worker for better task isolation
         - Multiple workers always running
-        - Total: 2 workers × 50 = 100 concurrent activities
+        - Total: 2 workers × 100 = 200 concurrent activities
 
         BURST MODE (Cloud Run Jobs):
-        - Higher concurrency per worker
+        - Maximum concurrency per worker for peak performance
         - Many workers for short duration
-        - Total: 50 workers × 20 = 1000 concurrent activities
+        - Total: 50 workers × 50 = 2500 concurrent activities
+
+        Improved settings for better task isolation:
+        - More activities per worker = better resource utilization
+        - Higher workflow concurrency = multiple tasks can run simultaneously
+        - No artificial limits per workflow = full parallelism
         """
         if self.is_burst_mode:
             return {
-                "workflows": 100,
-                "activities": 20,  # Each Cloud Run worker handles more
+                "workflows": 200,  # More workflows per worker
+                "activities": 50,  # Higher activity concurrency
             }
         else:
             return {
-                "workflows": 50,
-                "activities": 10,  # Each base worker handles less
+                "workflows": 100,  # More workflows per worker
+                "activities": 20,  # Higher activity concurrency
             }
 
     async def _run_burst_mode(self) -> None:
