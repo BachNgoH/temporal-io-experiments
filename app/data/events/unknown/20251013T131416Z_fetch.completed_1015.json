@@ -1,0 +1,288 @@
+{
+  "event_id": "1015",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "24",
+    "invoice_number": "437",
+    "invoice_detail": {
+      "nbmst": "0317313178",
+      "khmshdon": 1,
+      "khhdon": "C25TYY",
+      "shdon": 437,
+      "cqt": "7914",
+      "cttkhac": [
+        {
+          "ttruong": "VATRateOne",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "InvSubTotal",
+          "kdlieu": "string",
+          "dlieu": "1610000"
+        },
+        {
+          "ttruong": "DiscountAmount",
+          "kdlieu": "string",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "RowPerPage",
+          "kdlieu": "numberic",
+          "dlieu": "10"
+        }
+      ],
+      "dvtte": "VND",
+      "hdon": "01",
+      "hsgcma": "08ec742d-d915-403f-9bb3-67b6da3b87e1",
+      "hsgoc": "8466ae0a-7115-42c8-b57e-271b13f3e1b0",
+      "hthdon": 1,
+      "htttoan": 3,
+      "id": "c85d2fce-bd9c-419f-ac93-f9a219e5f085",
+      "idtbao": null,
+      "khdon": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "009F86F262DED0483CABA431E206559412",
+      "mtdiep": null,
+      "mtdtchieu": "V010598743202A5D0697BCE4AAEA1A90C8B01423E23",
+      "nbdchi": "99/10 Huỳnh Văn Nghệ, Phường An Hội Tây, Thành phố Hồ Chí Minh, Việt Nam",
+      "chma": null,
+      "chten": null,
+      "nbhdktngay": null,
+      "nbhdktso": null,
+      "nbhdso": null,
+      "nblddnbo": null,
+      "nbptvchuyen": null,
+      "nbstkhoan": "19038610358010",
+      "nbten": "CÔNG TY TNHH SẢN XUẤT THƯƠNG MẠI XUẤT NHẬP KHẨU HOTHACO",
+      "nbtnhang": "Tại Ngân Hàng Techcombank - Chi Nhánh Thủ Đức",
+      "nbtnvchuyen": null,
+      "nbttkhac": [],
+      "ncma": "2025-09-18T12:01:18.818Z",
+      "ncnhat": "2025-09-18T12:01:18.824Z",
+      "ngcnhat": "tvan_softdreams",
+      "nky": "2025-09-18T12:01:08Z",
+      "nmdchi": "57 Võ Văn Tần, Phường Xuân Hòa, Thành phố Hồ Chí Minh, Việt Nam",
+      "nmmst": "031076006187",
+      "nmstkhoan": null,
+      "nmten": "Trịnh Thanh Hải",
+      "nmtnhang": null,
+      "nmtnmua": null,
+      "nmttkhac": [],
+      "ntao": "2025-09-18T12:01:18.786Z",
+      "ntnhan": "2025-09-18T12:01:18.705Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-17T17:00:00Z",
+      "tgia": 1.0,
+      "tgtcthue": 1610000.0,
+      "tgtthue": 80500.0,
+      "tgtttbchu": "Một  triệu sáu  trăm chín  mươi nghìn năm  trăm đồng.",
+      "tgtttbso": 1690500.0,
+      "thdon": "Hóa đơn giá trị gia tăng",
+      "thlap": 202509,
+      "thttlphi": [
+        {
+          "tlphi": null,
+          "tphi": null
+        }
+      ],
+      "thttltsuat": [
+        {
+          "tsuat": "5%",
+          "thtien": 1610000.0,
+          "tthue": 80500.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "ttkhac": [
+        {
+          "ttruong": "PortalLink",
+          "kdlieu": "string",
+          "dlieu": "http://0317313178hd.easyinvoice.com.vn"
+        },
+        {
+          "ttruong": "Fkey",
+          "kdlieu": "string",
+          "dlieu": "PGDQKC4DG1EbbR"
+        }
+      ],
+      "tttbao": 1,
+      "ttttkhac": [
+        {
+          "ttruong": "Amount5",
+          "kdlieu": "decimal",
+          "dlieu": "1690500"
+        }
+      ],
+      "ttxly": 5,
+      "tvandnkntt": "0105987432",
+      "mhso": null,
+      "ladhddt": 1,
+      "mkhang": "ng8",
+      "nbsdthoai": null,
+      "nbdctdtu": "hothaco.ltd@gmail.com",
+      "nbfax": null,
+      "nbwebsite": null,
+      "nbcks": "{\"Subject\":\"OID.0.9.2342.19200300.100.1.1=MST:0317313178, CN=CÔNG TY TNHH SẢN XUẤT THƯƠNG MẠI XUẤT NHẬP KHẨU HOTHACO, O=CÔNG TY TNHH SẢN XUẤT THƯƠNG MẠI XUẤT NHẬP KHẨU HOTHACO, L=\\\"99/10 Huỳnh Văn Nghệ, Phường 12, Quận Gò Vấp, Thành phố Hồ Chí Minh, Việt Nam\\\", S=Hồ Chí Minh, C=VN\",\"SerialNumber\":\"540110007D1264BBDBC2F63881362883\",\"Issuer\":\"C=VN, O=SOFTDREAMS TECHNOLOGY INVESTMENT AND TRADING JSC, OU=EASYCA, CN=EASYCA\",\"NotAfter\":\"2028-06-24T13:26:15\",\"NotBefore\":\"2025-06-25T13:26:15\",\"SigningTime\":\"2025-09-18T19:01:08\"}",
+      "nmsdthoai": null,
+      "nmdctdtu": null,
+      "nmcmnd": null,
+      "nmcks": null,
+      "bhphap": 0,
+      "hddunlap": null,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tgtphi": null,
+      "unhiem": null,
+      "mstdvnunlhdon": null,
+      "tdvnunlhdon": null,
+      "nbmdvqhnsach": null,
+      "nbsqdinh": null,
+      "nbncqdinh": null,
+      "nbcqcqdinh": null,
+      "nbhtban": null,
+      "nmmdvqhnsach": null,
+      "nmddvchden": null,
+      "nmtgvchdtu": null,
+      "nmtgvchdden": null,
+      "nbtnban": null,
+      "dcdvnunlhdon": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "thtttoan": "Tiền mặt/Chuyển khoản",
+      "msttcgp": "0105987432",
+      "cqtcks": "{\"Subject\":\"CN=CỤC THUẾ,O=BỘ TÀI CHÍNH,L=Hà Nội,C=VN\",\"SerialNumber\":\"2A05F812673607B0\",\"Issuer\":\"CN=CA phục vụ các cơ quan Nhà nước G2, O=Ban Cơ yếu Chính phủ, C=VN\",\"NotAfter\":\"2030-03-12T16:36:53\",\"NotBefore\":\"2025-03-13T16:36:53\",\"SigningTime\":\"2025-09-18T19:01:18\"}",
+      "gchu": "",
+      "kqcht": null,
+      "hdntgia": null,
+      "tgtkcthue": 0.0,
+      "tgtkhac": 0.0,
+      "nmshchieu": null,
+      "nmnchchieu": null,
+      "nmnhhhchieu": null,
+      "nmqtich": null,
+      "ktkhthue": null,
+      "nmstttoan": null,
+      "nmttttoan": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "c85d2fce-bd9c-419f-ac93-f9a219e5f085",
+          "id": "eb226616-e39d-4f12-b334-76f8b18d231c",
+          "dgia": 115000.0,
+          "dvtinh": "Kg",
+          "ltsuat": "5%",
+          "sluong": 14.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "tchat": 1,
+          "ten": "Mực nang",
+          "thtcthue": null,
+          "thtien": 1610000.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.05,
+          "tthue": null,
+          "sxep": 1,
+          "ttkhac": [
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "decimal",
+              "dlieu": "80500"
+            },
+            {
+              "ttruong": "Amount",
+              "kdlieu": "decimal",
+              "dlieu": "1690500"
+            },
+            {
+              "ttruong": "ProdSubTotal",
+              "kdlieu": "string",
+              "dlieu": "1610000"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009965000001100317313178020110306C25TYY040343705082025091806091690500.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "hdtbssrses": null,
+      "hdTrung": null,
+      "isHDTrung": null,
+      "hdcttchinh": 0
+    },
+    "line_items": [
+      {
+        "idhdon": "c85d2fce-bd9c-419f-ac93-f9a219e5f085",
+        "id": "eb226616-e39d-4f12-b334-76f8b18d231c",
+        "dgia": 115000.0,
+        "dvtinh": "Kg",
+        "ltsuat": "5%",
+        "sluong": 14.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "tchat": 1,
+        "ten": "Mực nang",
+        "thtcthue": null,
+        "thtien": 1610000.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.05,
+        "tthue": null,
+        "sxep": 1,
+        "ttkhac": [
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "decimal",
+            "dlieu": "80500"
+          },
+          {
+            "ttruong": "Amount",
+            "kdlieu": "decimal",
+            "dlieu": "1690500"
+          },
+          {
+            "ttruong": "ProdSubTotal",
+            "kdlieu": "string",
+            "dlieu": "1610000"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "Trịnh Thanh Hải",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "query",
+      "excel_file": "gdt_export_mua_vao_dien_tu_purchase_query_ttxly5_20251013_124941.xlsx",
+      "flow_type": "mua_vao_dien_tu",
+      "khhdon": "C25TYY",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

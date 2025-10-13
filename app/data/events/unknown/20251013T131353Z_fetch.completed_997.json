@@ -1,0 +1,1170 @@
+{
+  "event_id": "997",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "10",
+    "invoice_number": "19433",
+    "invoice_detail": {
+      "nbmst": "0303556124",
+      "khmshdon": 1,
+      "khhdon": "C25TQP",
+      "shdon": 19433,
+      "cqt": "7914",
+      "cttkhac": [
+        {
+          "ttruong": "InvoiceTemplateID",
+          "kdlieu": "string",
+          "dlieu": "03d0b4a9-2b4e-4b55-bc6a-8a8131a705f0"
+        },
+        {
+          "ttruong": "IsTaxReduction",
+          "kdlieu": "numeric",
+          "dlieu": "False"
+        },
+        {
+          "ttruong": "IsTaxReduction43",
+          "kdlieu": "numeric",
+          "dlieu": "True"
+        },
+        {
+          "ttruong": "RefID",
+          "kdlieu": "string",
+          "dlieu": "3c7acd3c-c799-4676-8969-845bccc9346c"
+        },
+        {
+          "ttruong": "AmountDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "AmountOCDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "2"
+        },
+        {
+          "ttruong": "CoefficientDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "3"
+        },
+        {
+          "ttruong": "ExchangRateDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "2"
+        },
+        {
+          "ttruong": "MainCurrency",
+          "kdlieu": "string",
+          "dlieu": "VND"
+        },
+        {
+          "ttruong": "QuantityDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "2"
+        },
+        {
+          "ttruong": "UnitPriceDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "2"
+        },
+        {
+          "ttruong": "UnitPriceOCDecimalDigits",
+          "kdlieu": "string",
+          "dlieu": "2"
+        },
+        {
+          "ttruong": "AppID",
+          "kdlieu": "string",
+          "dlieu": "F7E8D7E5-BB5A-421B-8B39-D3A35D661F08"
+        },
+        {
+          "ttruong": "TransactionID",
+          "kdlieu": "string",
+          "dlieu": "85HBTMW7J2B2"
+        }
+      ],
+      "dvtte": "VND",
+      "hdon": "01",
+      "hsgcma": "c9dcde4e-b182-441d-be7b-fd3a7ae62c42",
+      "hsgoc": "551cd43f-80b3-4fa3-9de9-9466897992fd",
+      "hthdon": 1,
+      "htttoan": 9,
+      "id": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+      "idtbao": null,
+      "khdon": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "007D8BBDBCCAFE44BDB854C23CFCA4E7D1",
+      "mtdiep": null,
+      "mtdtchieu": "V0101243150DC70B04F55534EABBF4AF5407DE5F435",
+      "nbdchi": "K35 An Nhơn, Phường Gò Vấp, Thành Phố Hồ Chí Minh, Việt Nam",
+      "chma": null,
+      "chten": null,
+      "nbhdktngay": null,
+      "nbhdktso": null,
+      "nbhdso": null,
+      "nblddnbo": null,
+      "nbptvchuyen": null,
+      "nbstkhoan": "3680282330",
+      "nbten": "CÔNG TY TNHH THƯƠNG MẠI - DỊCH VỤ NGUYÊN QUÂN",
+      "nbtnhang": "NGÂN HÀNG TMCP ĐẦU TƯ VÀ PHÁT TRIỂN VIỆT NAM - CN TÂN BÌNH",
+      "nbtnvchuyen": null,
+      "nbttkhac": [
+        {
+          "ttruong": "SellerAddress",
+          "kdlieu": "string",
+          "dlieu": "K35 An Nhơn, Phường Gò Vấp, Thành Phố Hồ Chí Minh, Việt Nam"
+        },
+        {
+          "ttruong": "SellerBankAccount",
+          "kdlieu": "string",
+          "dlieu": "3680282330"
+        },
+        {
+          "ttruong": "SellerBankName",
+          "kdlieu": "string",
+          "dlieu": "NGÂN HÀNG TMCP ĐẦU TƯ VÀ PHÁT TRIỂN VIỆT NAM - CN TÂN BÌNH"
+        },
+        {
+          "ttruong": "SellerEmail",
+          "kdlieu": "string",
+          "dlieu": "nguyenquanqgv@gmail.com"
+        },
+        {
+          "ttruong": "SellerPhoneNumber",
+          "kdlieu": "string",
+          "dlieu": "0903641681"
+        }
+      ],
+      "ncma": "2025-09-17T08:36:32.628Z",
+      "ncnhat": "2025-09-17T08:36:32.634Z",
+      "ngcnhat": "tvan_misa",
+      "nky": "2025-09-17T08:36:14Z",
+      "nmdchi": "57 Võ Văn Tần, Phường Xuân Hòa, Thành phố Hồ Chí Minh, Việt Nam.",
+      "nmmst": "8026037048",
+      "nmstkhoan": null,
+      "nmten": "TRỊNH THANH HẢI",
+      "nmtnhang": null,
+      "nmtnmua": null,
+      "nmttkhac": [
+        {
+          "ttruong": "AccountObjectIdentificationNumber",
+          "kdlieu": "string",
+          "dlieu": "031076006187"
+        }
+      ],
+      "ntao": "2025-09-17T08:36:30.603Z",
+      "ntnhan": "2025-09-17T08:36:30.564Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-16T17:00:00Z",
+      "tgia": 1.0,
+      "tgtcthue": 1877778.0,
+      "tgtthue": 150222.0,
+      "tgtttbchu": "Hai triệu không trăm hai mươi tám nghìn đồng chẵn.",
+      "tgtttbso": 2028000.0,
+      "thdon": "Hóa đơn giá trị gia tăng",
+      "thlap": 202509,
+      "thttlphi": [],
+      "thttltsuat": [
+        {
+          "tsuat": "8%",
+          "thtien": 1877778.0,
+          "tthue": 150222.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "ttkhac": [
+        {
+          "ttruong": "StockTotalAmount",
+          "kdlieu": "numeric",
+          "dlieu": "2028000.0"
+        },
+        {
+          "ttruong": "StockTotalAmountOC",
+          "kdlieu": "numeric",
+          "dlieu": "2028000.0"
+        }
+      ],
+      "tttbao": 1,
+      "ttttkhac": [
+        {
+          "ttruong": "TotalAmount",
+          "kdlieu": "numeric",
+          "dlieu": "2028000.0"
+        },
+        {
+          "ttruong": "TotalAmountInWordsByENG",
+          "kdlieu": "string",
+          "dlieu": "Two million, twenty-eight thousand dong."
+        },
+        {
+          "ttruong": "TotalAmountInWordsVN",
+          "kdlieu": "string",
+          "dlieu": "Hai triệu không trăm hai mươi tám nghìn đồng chẵn."
+        },
+        {
+          "ttruong": "TotalAmountWithoutVAT",
+          "kdlieu": "numeric",
+          "dlieu": "1877778.0"
+        },
+        {
+          "ttruong": "TotalAmountWithoutVATOC",
+          "kdlieu": "numeric",
+          "dlieu": "1877778.0"
+        },
+        {
+          "ttruong": "TotalSaleAmount",
+          "kdlieu": "numeric",
+          "dlieu": "1877778.0"
+        },
+        {
+          "ttruong": "TotalSaleAmountOC",
+          "kdlieu": "numeric",
+          "dlieu": "1877778.0"
+        },
+        {
+          "ttruong": "TotalVATAmount",
+          "kdlieu": "numeric",
+          "dlieu": "150222.0"
+        },
+        {
+          "ttruong": "TotalAmountOC",
+          "kdlieu": "numeric",
+          "dlieu": "2028000.0"
+        },
+        {
+          "ttruong": "TotalVATAmountOC",
+          "kdlieu": "numeric",
+          "dlieu": "150222.0"
+        }
+      ],
+      "ttxly": 5,
+      "tvandnkntt": "0101243150",
+      "mhso": null,
+      "ladhddt": 1,
+      "mkhang": "8026037048",
+      "nbsdthoai": "0903641681",
+      "nbdctdtu": "nguyenquanqgv@gmail.com",
+      "nbfax": null,
+      "nbwebsite": null,
+      "nbcks": "{\"Subject\":\"E=nguyenquanqgv@gmail.com, userId=MST:0303556124, CN=CÔNG TY TNHH THƯƠNG MẠI - DỊCH VỤ NGUYÊN QUÂN, O=CÔNG TY TNHH THƯƠNG MẠI - DỊCH VỤ NGUYÊN QUÂN, L=Quận Gò Vấp, S=Hồ Chí Minh, C=VN\",\"SerialNumber\":\"54010C1DF04DCCB92CA272AFC1DDDA71\",\"Issuer\":\"CN=MISA-CA RS, O=MISA JOINT STOCK COMPANY, C=VN\",\"NotAfter\":\"2026-12-03T03:47:45\",\"NotBefore\":\"2024-09-22T15:19:33\",\"SigningTime\":\"2025-09-17T15:36:14\"}",
+      "nmsdthoai": null,
+      "nmdctdtu": null,
+      "nmcmnd": "031076006187",
+      "nmcks": null,
+      "bhphap": 0,
+      "hddunlap": null,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tgtphi": null,
+      "unhiem": null,
+      "mstdvnunlhdon": null,
+      "tdvnunlhdon": null,
+      "nbmdvqhnsach": null,
+      "nbsqdinh": null,
+      "nbncqdinh": null,
+      "nbcqcqdinh": null,
+      "nbhtban": null,
+      "nmmdvqhnsach": null,
+      "nmddvchden": null,
+      "nmtgvchdtu": null,
+      "nmtgvchdden": null,
+      "nbtnban": null,
+      "dcdvnunlhdon": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "thtttoan": "TM/CK",
+      "msttcgp": "0101243150",
+      "cqtcks": "{\"Subject\":\"CN=CỤC THUẾ,O=BỘ TÀI CHÍNH,L=Hà Nội,C=VN\",\"SerialNumber\":\"2A05F812673607B0\",\"Issuer\":\"CN=CA phục vụ các cơ quan Nhà nước G2, O=Ban Cơ yếu Chính phủ, C=VN\",\"NotAfter\":\"2030-03-12T16:36:53\",\"NotBefore\":\"2025-03-13T16:36:53\",\"SigningTime\":\"2025-09-17T15:36:30\"}",
+      "gchu": "",
+      "kqcht": null,
+      "hdntgia": null,
+      "tgtkcthue": null,
+      "tgtkhac": null,
+      "nmshchieu": null,
+      "nmnchchieu": null,
+      "nmnhhhchieu": null,
+      "nmqtich": null,
+      "ktkhthue": null,
+      "nmstttoan": null,
+      "nmttttoan": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "339de51f-e905-4cc5-b21d-1de8470abe58",
+          "dgia": 171296.3,
+          "dvtinh": "Thùng",
+          "ltsuat": "8%",
+          "sluong": 4.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "tchat": 1,
+          "ten": "Pepsi Lon 320x28",
+          "thtcthue": null,
+          "thtien": 685185.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 1,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "685185.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "685185.0"
+            },
+            {
+              "ttruong": "AmountWithoutVATOC",
+              "kdlieu": "numeric",
+              "dlieu": "685185.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "InventoryItemCategoryCode",
+              "kdlieu": "string",
+              "dlieu": "HH"
+            },
+            {
+              "ttruong": "InventoryItemCategoryName",
+              "kdlieu": "string",
+              "dlieu": "Hàng hóa"
+            },
+            {
+              "ttruong": "SortOrder",
+              "kdlieu": "numeric",
+              "dlieu": "1"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "171296.3"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "54815.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "54815.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "31468bfd-3d70-4bb2-94d2-ba7bbb54ed95",
+          "dgia": 171296.3,
+          "dvtinh": "Thùng",
+          "ltsuat": "8%",
+          "sluong": 2.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 2,
+          "tchat": 1,
+          "ten": "7up Lon 320x28",
+          "thtcthue": null,
+          "thtien": 342593.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 2,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "342593.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "342593.0"
+            },
+            {
+              "ttruong": "AmountWithoutVATOC",
+              "kdlieu": "numeric",
+              "dlieu": "342593.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "InventoryItemCategoryCode",
+              "kdlieu": "string",
+              "dlieu": "HH"
+            },
+            {
+              "ttruong": "InventoryItemCategoryName",
+              "kdlieu": "string",
+              "dlieu": "Hàng hóa"
+            },
+            {
+              "ttruong": "SortOrder",
+              "kdlieu": "numeric",
+              "dlieu": "2"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "171296.3"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "27407.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "27407.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "175bb55f-7b7b-4d5f-b15e-5049801cc3c6",
+          "dgia": 81481.48,
+          "dvtinh": "Thùng",
+          "ltsuat": "8%",
+          "sluong": 6.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 3,
+          "tchat": 1,
+          "ten": "Aquafina Chai nhựa 500x24",
+          "thtcthue": null,
+          "thtien": 488889.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 3,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "488889.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "488889.0"
+            },
+            {
+              "ttruong": "AmountWithoutVATOC",
+              "kdlieu": "numeric",
+              "dlieu": "488889.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "InventoryItemCategoryCode",
+              "kdlieu": "string",
+              "dlieu": "NCB"
+            },
+            {
+              "ttruong": "InventoryItemCategoryName",
+              "kdlieu": "string",
+              "dlieu": "NCB"
+            },
+            {
+              "ttruong": "SortOrder",
+              "kdlieu": "numeric",
+              "dlieu": "3"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "81481.48"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "39111.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "39111.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "f7fa1f22-3842-404b-bdbb-cdf1929b3b0e",
+          "dgia": 180555.56,
+          "dvtinh": "Thùng",
+          "ltsuat": "8%",
+          "sluong": 2.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 4,
+          "tchat": 1,
+          "ten": "Sting Dâu tây đỏ Lon 320x28",
+          "thtcthue": null,
+          "thtien": 361111.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 4,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "361111.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "361111.0"
+            },
+            {
+              "ttruong": "AmountWithoutVATOC",
+              "kdlieu": "numeric",
+              "dlieu": "361111.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "InventoryItemCategoryCode",
+              "kdlieu": "string",
+              "dlieu": "HH"
+            },
+            {
+              "ttruong": "InventoryItemCategoryName",
+              "kdlieu": "string",
+              "dlieu": "Hàng hóa"
+            },
+            {
+              "ttruong": "SortOrder",
+              "kdlieu": "numeric",
+              "dlieu": "4"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "180555.56"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "28889.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "28889.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "13042500-3187-40d7-bc61-c100a45eabf8",
+          "dgia": 0.0,
+          "dvtinh": "Thùng",
+          "ltsuat": "8%",
+          "sluong": 0.25,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 5,
+          "tchat": 2,
+          "ten": "Aquafina Chai nhựa 500x24",
+          "thtcthue": null,
+          "thtien": 0.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 5,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "InventoryItemCategoryCode",
+              "kdlieu": "string",
+              "dlieu": "NCB"
+            },
+            {
+              "ttruong": "InventoryItemCategoryName",
+              "kdlieu": "string",
+              "dlieu": "NCB"
+            },
+            {
+              "ttruong": "SortOrder",
+              "kdlieu": "numeric",
+              "dlieu": "5"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+          "id": "d2c7b0cc-1622-4a40-b7d2-4ea8e5680780",
+          "dgia": 0.0,
+          "dvtinh": null,
+          "ltsuat": null,
+          "sluong": 0.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 6,
+          "tchat": 4,
+          "ten": "Mua 1T LRB(-AQ,Bs,Rs,CSD,St,Tea,Rv) Tặng 1C AQF24",
+          "thtcthue": null,
+          "thtien": 0.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.0,
+          "tthue": null,
+          "sxep": 6,
+          "ttkhac": [
+            {
+              "ttruong": "Amount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "AmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "DiscountAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "UnitPrice",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            },
+            {
+              "ttruong": "VATAmountOC",
+              "kdlieu": "numeric",
+              "dlieu": "0.0"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009967000001100303556124020110306C25TQP04051943305082025091706092028000.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "hdtbssrses": null,
+      "hdTrung": null,
+      "isHDTrung": null,
+      "hdcttchinh": null
+    },
+    "line_items": [
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "339de51f-e905-4cc5-b21d-1de8470abe58",
+        "dgia": 171296.3,
+        "dvtinh": "Thùng",
+        "ltsuat": "8%",
+        "sluong": 4.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "tchat": 1,
+        "ten": "Pepsi Lon 320x28",
+        "thtcthue": null,
+        "thtien": 685185.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 1,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "685185.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "685185.0"
+          },
+          {
+            "ttruong": "AmountWithoutVATOC",
+            "kdlieu": "numeric",
+            "dlieu": "685185.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "InventoryItemCategoryCode",
+            "kdlieu": "string",
+            "dlieu": "HH"
+          },
+          {
+            "ttruong": "InventoryItemCategoryName",
+            "kdlieu": "string",
+            "dlieu": "Hàng hóa"
+          },
+          {
+            "ttruong": "SortOrder",
+            "kdlieu": "numeric",
+            "dlieu": "1"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "171296.3"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "54815.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "54815.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "31468bfd-3d70-4bb2-94d2-ba7bbb54ed95",
+        "dgia": 171296.3,
+        "dvtinh": "Thùng",
+        "ltsuat": "8%",
+        "sluong": 2.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 2,
+        "tchat": 1,
+        "ten": "7up Lon 320x28",
+        "thtcthue": null,
+        "thtien": 342593.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 2,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "342593.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "342593.0"
+          },
+          {
+            "ttruong": "AmountWithoutVATOC",
+            "kdlieu": "numeric",
+            "dlieu": "342593.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "InventoryItemCategoryCode",
+            "kdlieu": "string",
+            "dlieu": "HH"
+          },
+          {
+            "ttruong": "InventoryItemCategoryName",
+            "kdlieu": "string",
+            "dlieu": "Hàng hóa"
+          },
+          {
+            "ttruong": "SortOrder",
+            "kdlieu": "numeric",
+            "dlieu": "2"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "171296.3"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "27407.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "27407.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "175bb55f-7b7b-4d5f-b15e-5049801cc3c6",
+        "dgia": 81481.48,
+        "dvtinh": "Thùng",
+        "ltsuat": "8%",
+        "sluong": 6.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 3,
+        "tchat": 1,
+        "ten": "Aquafina Chai nhựa 500x24",
+        "thtcthue": null,
+        "thtien": 488889.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 3,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "488889.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "488889.0"
+          },
+          {
+            "ttruong": "AmountWithoutVATOC",
+            "kdlieu": "numeric",
+            "dlieu": "488889.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "InventoryItemCategoryCode",
+            "kdlieu": "string",
+            "dlieu": "NCB"
+          },
+          {
+            "ttruong": "InventoryItemCategoryName",
+            "kdlieu": "string",
+            "dlieu": "NCB"
+          },
+          {
+            "ttruong": "SortOrder",
+            "kdlieu": "numeric",
+            "dlieu": "3"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "81481.48"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "39111.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "39111.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "f7fa1f22-3842-404b-bdbb-cdf1929b3b0e",
+        "dgia": 180555.56,
+        "dvtinh": "Thùng",
+        "ltsuat": "8%",
+        "sluong": 2.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 4,
+        "tchat": 1,
+        "ten": "Sting Dâu tây đỏ Lon 320x28",
+        "thtcthue": null,
+        "thtien": 361111.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 4,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "361111.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "361111.0"
+          },
+          {
+            "ttruong": "AmountWithoutVATOC",
+            "kdlieu": "numeric",
+            "dlieu": "361111.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "InventoryItemCategoryCode",
+            "kdlieu": "string",
+            "dlieu": "HH"
+          },
+          {
+            "ttruong": "InventoryItemCategoryName",
+            "kdlieu": "string",
+            "dlieu": "Hàng hóa"
+          },
+          {
+            "ttruong": "SortOrder",
+            "kdlieu": "numeric",
+            "dlieu": "4"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "180555.56"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "28889.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "28889.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "13042500-3187-40d7-bc61-c100a45eabf8",
+        "dgia": 0.0,
+        "dvtinh": "Thùng",
+        "ltsuat": "8%",
+        "sluong": 0.25,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 5,
+        "tchat": 2,
+        "ten": "Aquafina Chai nhựa 500x24",
+        "thtcthue": null,
+        "thtien": 0.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 5,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "InventoryItemCategoryCode",
+            "kdlieu": "string",
+            "dlieu": "NCB"
+          },
+          {
+            "ttruong": "InventoryItemCategoryName",
+            "kdlieu": "string",
+            "dlieu": "NCB"
+          },
+          {
+            "ttruong": "SortOrder",
+            "kdlieu": "numeric",
+            "dlieu": "5"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "97c55c37-8926-4c39-b60a-d9cc551e7997",
+        "id": "d2c7b0cc-1622-4a40-b7d2-4ea8e5680780",
+        "dgia": 0.0,
+        "dvtinh": null,
+        "ltsuat": null,
+        "sluong": 0.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 6,
+        "tchat": 4,
+        "ten": "Mua 1T LRB(-AQ,Bs,Rs,CSD,St,Tea,Rv) Tặng 1C AQF24",
+        "thtcthue": null,
+        "thtien": 0.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.0,
+        "tthue": null,
+        "sxep": 6,
+        "ttkhac": [
+          {
+            "ttruong": "Amount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "AmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "DiscountAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "UnitPrice",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          },
+          {
+            "ttruong": "VATAmountOC",
+            "kdlieu": "numeric",
+            "dlieu": "0.0"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "TRỊNH THANH HẢI",
+      "buyer_tax_code": "8026037048",
+      "endpoint_kind": "query",
+      "excel_file": "gdt_export_mua_vao_dien_tu_purchase_query_ttxly5_20251013_124941.xlsx",
+      "flow_type": "mua_vao_dien_tu",
+      "khhdon": "C25TQP",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

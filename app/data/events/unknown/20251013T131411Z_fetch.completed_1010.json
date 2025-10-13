@@ -1,0 +1,404 @@
+{
+  "event_id": "1010",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "19",
+    "invoice_number": "48674",
+    "invoice_detail": {
+      "nbmst": "0311789651",
+      "khmshdon": 1,
+      "khhdon": "C25TTP",
+      "shdon": 48674,
+      "cqt": "7905",
+      "cttkhac": [
+        {
+          "ttruong": "GrossValueNoExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossValue0Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossValue5Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossValue8Extra",
+          "kdlieu": "numberic",
+          "dlieu": "1720370"
+        },
+        {
+          "ttruong": "GrossValue10Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossValueNDeclaredExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossValueContractorExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "GrossCTTCExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmountNoVatExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmount0Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmount5Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmount8Extra",
+          "kdlieu": "numberic",
+          "dlieu": "137630"
+        },
+        {
+          "ttruong": "VatAmount10Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmountNDeclaredExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmountContractorExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "VatAmountCTTCExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "AmountNoVatExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "Amount0Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "Amount5Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "Amount8Extra",
+          "kdlieu": "numberic",
+          "dlieu": "1858000"
+        },
+        {
+          "ttruong": "Amount10Extra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "AmountNDeclaredExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "AmountContractorExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "AmountCTTCExtra",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "CheckDiscount",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "DiscountVatRate",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "TotalDiscount",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "RowPerPage",
+          "kdlieu": "numberic",
+          "dlieu": "10"
+        }
+      ],
+      "dvtte": "VND",
+      "hdon": "01",
+      "hsgcma": "64d11105-5a54-4e3e-81f5-549ab734db6b",
+      "hsgoc": "3599719f-225d-42ac-a701-25619b44b7c8",
+      "hthdon": 1,
+      "htttoan": 3,
+      "id": "cb211a7a-4b54-4adc-bba8-de9ea51444be",
+      "idtbao": null,
+      "khdon": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "00A5AFCF408DCE45C298569065EFD5F904",
+      "mtdiep": null,
+      "mtdtchieu": "V0105987432427C388CDA6E4BBF9B1074CDE6FCD0F1",
+      "nbdchi": "B156/3 Nguyễn Thần Hiến, Phường Xóm Chiếu, Thành phố Hồ Chí Minh, Việt Nam",
+      "chma": null,
+      "chten": null,
+      "nbhdktngay": null,
+      "nbhdktso": null,
+      "nbhdso": null,
+      "nblddnbo": null,
+      "nbptvchuyen": null,
+      "nbstkhoan": "13 73 43 859",
+      "nbten": "CÔNG TY TNHH TUẤN LỘC PH",
+      "nbtnhang": "Ngân hàng TMCP Á Châu (ACB) - PGD Hai Bà Trưng - CN Sài Gòn",
+      "nbtnvchuyen": null,
+      "nbttkhac": [
+        {
+          "ttruong": "ComEnAddress",
+          "kdlieu": "string",
+          "dlieu": "Địa chỉ xuất hàng: 196 Tôn Thất Thuyết, Phường Vĩnh Hội, Thành phố Hồ Chí Minh, Việt Nam"
+        }
+      ],
+      "ncma": "2025-09-27T12:20:57.515Z",
+      "ncnhat": "2025-09-27T12:20:57.522Z",
+      "ngcnhat": "tvan_softdreams",
+      "nky": "2025-09-27T12:20:26Z",
+      "nmdchi": "57 Võ Văn Tần, Phường Xuân Hòa, TP Hồ Chí Minh, Việt Nam",
+      "nmmst": "031076006187",
+      "nmstkhoan": null,
+      "nmten": "Trịnh Thanh Hải",
+      "nmtnhang": null,
+      "nmtnmua": null,
+      "nmttkhac": [],
+      "ntao": "2025-09-27T12:20:57.472Z",
+      "ntnhan": "2025-09-27T12:20:57.438Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-26T17:00:00Z",
+      "tgia": 1.0,
+      "tgtcthue": 1720370.0,
+      "tgtthue": 137630.0,
+      "tgtttbchu": "Một triệu tám trăm năm mươi tám nghìn đồng.",
+      "tgtttbso": 1858000.0,
+      "thdon": "Hóa đơn giá trị gia tăng",
+      "thlap": 202509,
+      "thttlphi": [
+        {
+          "tlphi": null,
+          "tphi": null
+        }
+      ],
+      "thttltsuat": [
+        {
+          "tsuat": "8%",
+          "thtien": 1720370.0,
+          "tthue": 137630.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "ttkhac": [
+        {
+          "ttruong": "PortalLink",
+          "kdlieu": "string",
+          "dlieu": "http://0311789651hd.easyinvoice.com.vn"
+        },
+        {
+          "ttruong": "Fkey",
+          "kdlieu": "string",
+          "dlieu": "G265D2FYE"
+        }
+      ],
+      "tttbao": 1,
+      "ttttkhac": [
+        {
+          "ttruong": "Amount8",
+          "kdlieu": "decimal",
+          "dlieu": "1858000"
+        }
+      ],
+      "ttxly": 5,
+      "tvandnkntt": "0105987432",
+      "mhso": null,
+      "ladhddt": 1,
+      "mkhang": "TRINHTHANHHAI",
+      "nbsdthoai": "028 3940 4227",
+      "nbdctdtu": null,
+      "nbfax": null,
+      "nbwebsite": null,
+      "nbcks": "{\"Subject\":\"C=VN, S=Hồ Chí Minh, CN=CÔNG TY TNHH TUẤN LỘC PH, OID.0.9.2342.19200300.100.1.1=MST:0311789651\",\"SerialNumber\":\"5401011368E8C4E0B63B809426E56EB1\",\"Issuer\":\"C=VN, O=CÔNG TY CỔ PHẦN THƯƠNG MẠI VISNAM, CN=ONE-CA SHA-256\",\"NotAfter\":\"2025-10-22T23:01:32\",\"NotBefore\":\"2024-04-22T23:01:32\",\"SigningTime\":\"2025-09-27T19:20:26\"}",
+      "nmsdthoai": null,
+      "nmdctdtu": null,
+      "nmcmnd": null,
+      "nmcks": null,
+      "bhphap": 0,
+      "hddunlap": null,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tgtphi": null,
+      "unhiem": null,
+      "mstdvnunlhdon": null,
+      "tdvnunlhdon": null,
+      "nbmdvqhnsach": null,
+      "nbsqdinh": null,
+      "nbncqdinh": null,
+      "nbcqcqdinh": null,
+      "nbhtban": null,
+      "nmmdvqhnsach": null,
+      "nmddvchden": null,
+      "nmtgvchdtu": null,
+      "nmtgvchdden": null,
+      "nbtnban": null,
+      "dcdvnunlhdon": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "thtttoan": "Tiền mặt/Chuyển khoản",
+      "msttcgp": "0105987432",
+      "cqtcks": "{\"Subject\":\"CN=CỤC THUẾ,O=BỘ TÀI CHÍNH,L=Hà Nội,C=VN\",\"SerialNumber\":\"2A05F812673607B0\",\"Issuer\":\"CN=CA phục vụ các cơ quan Nhà nước G2, O=Ban Cơ yếu Chính phủ, C=VN\",\"NotAfter\":\"2030-03-12T16:36:53\",\"NotBefore\":\"2025-03-13T16:36:53\",\"SigningTime\":\"2025-09-27T19:20:57\"}",
+      "gchu": "",
+      "kqcht": null,
+      "hdntgia": null,
+      "tgtkcthue": 0.0,
+      "tgtkhac": 0.0,
+      "nmshchieu": null,
+      "nmnchchieu": null,
+      "nmnhhhchieu": null,
+      "nmqtich": null,
+      "ktkhthue": null,
+      "nmstttoan": null,
+      "nmttttoan": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "cb211a7a-4b54-4adc-bba8-de9ea51444be",
+          "id": "de1817b3-5d34-4f0f-85c2-b86399726a2b",
+          "dgia": 860185.1852,
+          "dvtinh": "Can",
+          "ltsuat": "8%",
+          "sluong": 2.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "tchat": 1,
+          "ten": "Dầu thực vật hảo hạng nhãn hiệu Orchid (kích cỡ đóng gói lớn) đóng can 25kg",
+          "thtcthue": null,
+          "thtien": 1720370.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 1,
+          "ttkhac": [
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "decimal",
+              "dlieu": "137630"
+            },
+            {
+              "ttruong": "Amount",
+              "kdlieu": "decimal",
+              "dlieu": "1858000"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009967000001100311789651020110306C25TTP04054867405082025092706091858000.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "hdtbssrses": null,
+      "hdTrung": null,
+      "isHDTrung": null,
+      "hdcttchinh": 0
+    },
+    "line_items": [
+      {
+        "idhdon": "cb211a7a-4b54-4adc-bba8-de9ea51444be",
+        "id": "de1817b3-5d34-4f0f-85c2-b86399726a2b",
+        "dgia": 860185.1852,
+        "dvtinh": "Can",
+        "ltsuat": "8%",
+        "sluong": 2.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "tchat": 1,
+        "ten": "Dầu thực vật hảo hạng nhãn hiệu Orchid (kích cỡ đóng gói lớn) đóng can 25kg",
+        "thtcthue": null,
+        "thtien": 1720370.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 1,
+        "ttkhac": [
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "decimal",
+            "dlieu": "137630"
+          },
+          {
+            "ttruong": "Amount",
+            "kdlieu": "decimal",
+            "dlieu": "1858000"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "Trịnh Thanh Hải",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "query",
+      "excel_file": "gdt_export_mua_vao_dien_tu_purchase_query_ttxly5_20251013_124941.xlsx",
+      "flow_type": "mua_vao_dien_tu",
+      "khhdon": "C25TTP",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

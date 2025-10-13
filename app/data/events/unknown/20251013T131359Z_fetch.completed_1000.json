@@ -1,0 +1,288 @@
+{
+  "event_id": "1000",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "11",
+    "invoice_number": "36356",
+    "invoice_detail": {
+      "nbmst": "0304667885",
+      "khmshdon": 1,
+      "khhdon": "C25TSP",
+      "shdon": 36356,
+      "cqt": "7917",
+      "cttkhac": [
+        {
+          "ttruong": "DiscountRate",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "DiscountAmount",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "PaymentDiscount",
+          "kdlieu": "numberic",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "RowPerPage",
+          "kdlieu": "numberic",
+          "dlieu": "10"
+        }
+      ],
+      "dvtte": "VND",
+      "hdon": "01",
+      "hsgcma": "98d330a5-f18e-4abf-bd20-e3446935cc95",
+      "hsgoc": "9c7961f2-cf09-4bc3-a110-ada11d9852b3",
+      "hthdon": 1,
+      "htttoan": 9,
+      "id": "9bfcff42-a9e2-453c-8f3a-a31f7d793258",
+      "idtbao": null,
+      "khdon": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "007355F1543D8A4F46BA3DEC94F19DB350",
+      "mtdiep": null,
+      "mtdtchieu": "V01059874325D85DFE791E141E490F813E1745A56E7",
+      "nbdchi": "86 Nguyễn Cửu Vân, Phường Gia Định, Thành phố Hồ Chí Minh, Việt Nam",
+      "chma": null,
+      "chten": null,
+      "nbhdktngay": null,
+      "nbhdktso": null,
+      "nbhdso": null,
+      "nblddnbo": null,
+      "nbptvchuyen": null,
+      "nbstkhoan": null,
+      "nbten": "CÔNG TY CỔ PHẦN DẦU KHÍ MIỀN NAM",
+      "nbtnhang": null,
+      "nbtnvchuyen": null,
+      "nbttkhac": [],
+      "ncma": "2025-09-17T11:17:22.890Z",
+      "ncnhat": "2025-09-17T11:17:22.896Z",
+      "ngcnhat": "tvan_softdreams",
+      "nky": "2025-09-17T11:17:02Z",
+      "nmdchi": "57 Võ Văn Tần, Phường Xuân Hòa, Thành phố Hồ Chí Minh, Việt Nam",
+      "nmmst": "031076006187",
+      "nmstkhoan": null,
+      "nmten": "Trịnh Thanh Hải",
+      "nmtnhang": null,
+      "nmtnmua": null,
+      "nmttkhac": [],
+      "ntao": "2025-09-17T11:17:22.859Z",
+      "ntnhan": "2025-09-17T11:17:22.818Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-16T17:00:00Z",
+      "tgia": 1.0,
+      "tgtcthue": 5883750.0,
+      "tgtthue": 470700.0,
+      "tgtttbchu": "Sáu triệu ba trăm năm mươi bốn nghìn bốn trăm năm mươi đồng.",
+      "tgtttbso": 6354450.0,
+      "thdon": "Hóa đơn giá trị gia tăng",
+      "thlap": 202509,
+      "thttlphi": [
+        {
+          "tlphi": null,
+          "tphi": null
+        }
+      ],
+      "thttltsuat": [
+        {
+          "tsuat": "8%",
+          "thtien": 5883750.0,
+          "tthue": 470700.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "ttkhac": [
+        {
+          "ttruong": "PortalLink",
+          "kdlieu": "string",
+          "dlieu": "http://0304667885hd.easyinvoice.vn"
+        },
+        {
+          "ttruong": "Fkey",
+          "kdlieu": "string",
+          "dlieu": "0ec50109-a4e7-4cea-9aad-81ba47064bd3"
+        }
+      ],
+      "tttbao": 1,
+      "ttttkhac": [
+        {
+          "ttruong": "Amount8",
+          "kdlieu": "decimal",
+          "dlieu": "6354450"
+        }
+      ],
+      "ttxly": 5,
+      "tvandnkntt": "0105987432",
+      "mhso": null,
+      "ladhddt": 1,
+      "mkhang": "031076006187",
+      "nbsdthoai": "028 6292 1918 ",
+      "nbdctdtu": null,
+      "nbfax": "028 6292 1920",
+      "nbwebsite": null,
+      "nbcks": "{\"Subject\":\"C=VN, S=Hồ Chí Minh, CN=CÔNG TY CỔ PHẦN DẦU KHÍ MIỀN NAM, OID.0.9.2342.19200300.100.1.1=MST:0304667885\",\"SerialNumber\":\"54033A85A2CD449D7DD74B583E130BDA\",\"Issuer\":\"CN=BkavCA SHA256, O=Bkav Corporation, C=VN\",\"NotAfter\":\"2029-05-09T03:33:06\",\"NotBefore\":\"2024-05-11T06:17:14\",\"SigningTime\":\"2025-09-17T18:17:02\"}",
+      "nmsdthoai": null,
+      "nmdctdtu": null,
+      "nmcmnd": null,
+      "nmcks": null,
+      "bhphap": 0,
+      "hddunlap": null,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tgtphi": null,
+      "unhiem": null,
+      "mstdvnunlhdon": null,
+      "tdvnunlhdon": null,
+      "nbmdvqhnsach": null,
+      "nbsqdinh": null,
+      "nbncqdinh": null,
+      "nbcqcqdinh": null,
+      "nbhtban": null,
+      "nmmdvqhnsach": null,
+      "nmddvchden": null,
+      "nmtgvchdtu": null,
+      "nmtgvchdden": null,
+      "nbtnban": null,
+      "dcdvnunlhdon": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "thtttoan": "TM hoặc CK",
+      "msttcgp": "0105987432",
+      "cqtcks": "{\"Subject\":\"CN=CỤC THUẾ,O=BỘ TÀI CHÍNH,L=Hà Nội,C=VN\",\"SerialNumber\":\"2A05F812673607B0\",\"Issuer\":\"CN=CA phục vụ các cơ quan Nhà nước G2, O=Ban Cơ yếu Chính phủ, C=VN\",\"NotAfter\":\"2030-03-12T16:36:53\",\"NotBefore\":\"2025-03-13T16:36:53\",\"SigningTime\":\"2025-09-17T18:17:22\"}",
+      "gchu": "",
+      "kqcht": null,
+      "hdntgia": null,
+      "tgtkcthue": 0.0,
+      "tgtkhac": 0.0,
+      "nmshchieu": null,
+      "nmnchchieu": null,
+      "nmnhhhchieu": null,
+      "nmqtich": null,
+      "ktkhthue": null,
+      "nmstttoan": null,
+      "nmttttoan": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "9bfcff42-a9e2-453c-8f3a-a31f7d793258",
+          "id": "87bf0428-cbe8-49f5-80bb-9ce1a907da48",
+          "dgia": 26150.0,
+          "dvtinh": "kg",
+          "ltsuat": "8%",
+          "sluong": 225.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "tchat": 1,
+          "ten": "Khí hóa lỏng 45 kg Southern Petroleum",
+          "thtcthue": null,
+          "thtien": 5883750.0,
+          "tlckhau": 0.0,
+          "tsuat": 0.08,
+          "tthue": null,
+          "sxep": 1,
+          "ttkhac": [
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "decimal",
+              "dlieu": "470700"
+            },
+            {
+              "ttruong": "Amount",
+              "kdlieu": "decimal",
+              "dlieu": "6354450"
+            },
+            {
+              "ttruong": "Total",
+              "kdlieu": "string",
+              "dlieu": "5883750.00000000000000"
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009967000001100304667885020110306C25TSP04053635605082025091706096354450.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "hdtbssrses": null,
+      "hdTrung": null,
+      "isHDTrung": null,
+      "hdcttchinh": 0
+    },
+    "line_items": [
+      {
+        "idhdon": "9bfcff42-a9e2-453c-8f3a-a31f7d793258",
+        "id": "87bf0428-cbe8-49f5-80bb-9ce1a907da48",
+        "dgia": 26150.0,
+        "dvtinh": "kg",
+        "ltsuat": "8%",
+        "sluong": 225.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "tchat": 1,
+        "ten": "Khí hóa lỏng 45 kg Southern Petroleum",
+        "thtcthue": null,
+        "thtien": 5883750.0,
+        "tlckhau": 0.0,
+        "tsuat": 0.08,
+        "tthue": null,
+        "sxep": 1,
+        "ttkhac": [
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "decimal",
+            "dlieu": "470700"
+          },
+          {
+            "ttruong": "Amount",
+            "kdlieu": "decimal",
+            "dlieu": "6354450"
+          },
+          {
+            "ttruong": "Total",
+            "kdlieu": "string",
+            "dlieu": "5883750.00000000000000"
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "Trịnh Thanh Hải",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "query",
+      "excel_file": "gdt_export_mua_vao_dien_tu_purchase_query_ttxly5_20251013_124941.xlsx",
+      "flow_type": "mua_vao_dien_tu",
+      "khhdon": "C25TSP",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

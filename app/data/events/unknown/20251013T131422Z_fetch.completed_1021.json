@@ -1,0 +1,359 @@
+{
+  "event_id": "1021",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "2",
+    "invoice_number": "1488",
+    "invoice_detail": {
+      "nbmst": "024072003003",
+      "khmshdon": 2,
+      "khhdon": "C25MAA",
+      "shdon": 1488,
+      "cqt": "7917",
+      "cttkhac": [
+        {
+          "ttruong": "SearchKey",
+          "kdlieu": "string",
+          "dlieu": "rx140231758115249"
+        },
+        {
+          "ttruong": "Fkey",
+          "kdlieu": "string",
+          "dlieu": "JS9XB0ON0OERKT6"
+        },
+        {
+          "ttruong": "Discount",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "DiscountAmount",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "TradeDiscount0",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "TradeDiscount5",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "TradeDiscount8",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "TradeDiscount10",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "PlusAmountAfterDiscount0",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "PlusAmountAfterDiscount5",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "PlusAmountAfterDiscount8",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "PlusAmountAfterDiscount10",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "VatAmount0",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "VatAmount5",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "VatAmount8",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "VatAmount10",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "GrossValue",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "GrossValue0",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "GrossValue5",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "GrossValue8",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "GrossValue10",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "AmountVAT0",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "AmountVAT5",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "AmountVAT8",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "AmountVAT10",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        },
+        {
+          "ttruong": "TGTKhac",
+          "kdlieu": "string",
+          "dlieu": "0.000000000"
+        }
+      ],
+      "hdon": "02",
+      "hsgoc": "6ea34772-39cd-44b6-838d-980bd8fb7644",
+      "hthdon": 5,
+      "id": "d5560df0-c57a-4427-8674-df6a2bbb7d9c",
+      "idtbao": null,
+      "idtbhgthdon": null,
+      "idtbhgtrinh": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "M2-25-M5FDR-00100001488",
+      "mtdtchieu": "V0106713804E533A8A210A0403EA976C7C71F7E385B",
+      "nbdchi": "234B Hoàng Hoa Thám, Phường Bình Lợi Trung, Thành phố Hồ Chí Minh, Việt Nam",
+      "nbten": "NGUYỄN VĂN XUÂN",
+      "ncnhat": "2025-09-17T16:35:13.356Z",
+      "ngcnhat": null,
+      "nky": null,
+      "nmmst": "031076006187",
+      "nmten": "Trịnh Thanh Hải",
+      "nmtnmua": "Trịnh Thanh Hải",
+      "ntao": "2025-09-17T16:35:13.356Z",
+      "ntnhan": "2025-09-17T16:35:13.284Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-16T17:00:00Z",
+      "tgtcthue": null,
+      "tgtthue": null,
+      "tgtttbchu": "Hai triệu bảy trăm nghìn đồng",
+      "tgtttbso": 2700000.0,
+      "thdon": "Hoá đơn điện tử bán hàng",
+      "thlap": 202509,
+      "thttltsuat": [],
+      "tlhdon": "Hoá đơn điện tử bán hàng",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "tttbao": 0,
+      "ttttkhac": [],
+      "ttxly": 8,
+      "tvandnkntt": "0106713804",
+      "ladhddt": 1,
+      "nbsdthoai": null,
+      "nbcks": null,
+      "nmsdthoai": null,
+      "nmcccd": null,
+      "bhphap": 0,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tentvandnkntt": null,
+      "kqcht": null,
+      "nbttkhac": [],
+      "nmttkhac": [
+        {
+          "ttruong": "Buyer",
+          "kdlieu": "string",
+          "dlieu": "Trịnh Thanh Hải"
+        },
+        {
+          "ttruong": "CusName",
+          "kdlieu": "string",
+          "dlieu": "Trịnh Thanh Hải"
+        },
+        {
+          "ttruong": "CusEmail",
+          "kdlieu": "string",
+          "dlieu": "hddt.ngo8vtt@gmail.com"
+        },
+        {
+          "ttruong": "CusEmailCC",
+          "kdlieu": "string",
+          "dlieu": "THUE.DAUHUXUANHUONG@GMAIL.COM"
+        },
+        {
+          "ttruong": "PaymentMethod",
+          "kdlieu": "string",
+          "dlieu": "TM/CK"
+        }
+      ],
+      "ttkhac": [],
+      "nmloai": "0300",
+      "tghdmman": 1,
+      "tghdmmldo": null,
+      "cnhan": 1,
+      "kqchtmloi": [],
+      "nmdchi": "57 Võ Văn Tần, Phường Xuân Hòa, Thành phố Hồ Chí Minh, Việt Nam.",
+      "chma": null,
+      "chten": null,
+      "nmshchieu": null,
+      "nbstkhoan": null,
+      "nbtnhang": null,
+      "nmhvtnmhang": null,
+      "thtttoan": "TM/CK",
+      "nmmdvqhnsach": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "d5560df0-c57a-4427-8674-df6a2bbb7d9c",
+          "id": "89503023-276f-4331-bf9d-b668d8ba02e3",
+          "dgia": 3000.0,
+          "dvtinh": "Miếng",
+          "ltsuat": null,
+          "mhhdvu": null,
+          "sluong": 900.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "sxep": 1,
+          "tchat": 1,
+          "ten": "Đậu Hũ Trắng",
+          "thtcthue": null,
+          "thtien": 2700000.0,
+          "tlckhau": 0.0,
+          "tsuat": null,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "ProdType",
+              "kdlieu": "string",
+              "dlieu": "1"
+            },
+            {
+              "ttruong": "VATAmount",
+              "kdlieu": "string",
+              "dlieu": "0.000000000"
+            },
+            {
+              "ttruong": "Total",
+              "kdlieu": "string",
+              "dlieu": "2700000.000000000"
+            },
+            {
+              "ttruong": "Amount",
+              "kdlieu": "string",
+              "dlieu": "2700000.000000000"
+            }
+          ],
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "0002010102120200040026005200530054005800590060006200996800000112024072003003020120306C25MAA0404148805082025091706092700000.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "mtthdtbssrs": null
+    },
+    "line_items": [
+      {
+        "idhdon": "d5560df0-c57a-4427-8674-df6a2bbb7d9c",
+        "id": "89503023-276f-4331-bf9d-b668d8ba02e3",
+        "dgia": 3000.0,
+        "dvtinh": "Miếng",
+        "ltsuat": null,
+        "mhhdvu": null,
+        "sluong": 900.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "sxep": 1,
+        "tchat": 1,
+        "ten": "Đậu Hũ Trắng",
+        "thtcthue": null,
+        "thtien": 2700000.0,
+        "tlckhau": 0.0,
+        "tsuat": null,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "ProdType",
+            "kdlieu": "string",
+            "dlieu": "1"
+          },
+          {
+            "ttruong": "VATAmount",
+            "kdlieu": "string",
+            "dlieu": "0.000000000"
+          },
+          {
+            "ttruong": "Total",
+            "kdlieu": "string",
+            "dlieu": "2700000.000000000"
+          },
+          {
+            "ttruong": "Amount",
+            "kdlieu": "string",
+            "dlieu": "2700000.000000000"
+          }
+        ],
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "Trịnh Thanh Hải",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "sco-query",
+      "excel_file": "gdt_export_mua_vao_may_tinh_tien_purchase_sco-query_ttxly8_20251013_124959.xlsx",
+      "flow_type": "mua_vao_may_tinh_tien",
+      "khhdon": "C25MAA",
+      "khmshdon": "2",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

@@ -7,6 +7,7 @@ import tempfile
 from datetime import datetime, date, timedelta
 from typing import Any, Optional
 from temporalio import activity
+from temporal_app.activities.hooks import emit_on_complete
 
 from temporal_app.models import GdtInvoice, GdtSession
 
@@ -24,6 +25,17 @@ class GDTExcelDiscoveryError(Exception):
 
 
 @activity.defn
+@emit_on_complete(
+    event_name="discovery.completed",
+    payload_from_result=lambda invoices, session, date_range_start, date_range_end, flows: {
+        "company_id": getattr(session, "company_id", ""),
+        "date_range_start": date_range_start,
+        "date_range_end": date_range_end,
+        "flows": flows,
+        "invoice_count": len(invoices or []),
+    },
+    compact_from_result=lambda invoices, *args, **kwargs: invoices,
+)
 async def discover_invoices_excel(
     session: GdtSession,
     date_range_start: str,

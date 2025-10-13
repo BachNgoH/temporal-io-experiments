@@ -16,11 +16,6 @@ from temporal_app.activities import (
     discover_invoices_excel,
     fetch_invoice,
     login_to_gdt,
-    emit_workflow_started,
-    emit_workflow_completed,
-    emit_discovery_event,
-    emit_fetch_event,
-    emit_fetch_batch_event,
 )
 from temporal_app.workflows import GdtInvoiceImportWorkflow
 
@@ -83,11 +78,6 @@ class TemporalWorker:
                 discover_invoices,
                 discover_invoices_excel,
                 fetch_invoice,
-                emit_workflow_started,
-                emit_workflow_completed,
-                emit_discovery_event,
-                emit_fetch_event,
-                emit_fetch_batch_event,
                 # Add future activities here
             ],
             # Concurrency settings (different for base vs burst)

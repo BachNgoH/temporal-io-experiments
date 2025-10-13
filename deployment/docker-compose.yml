@@ -70,6 +70,8 @@ services:
       - TEMPORAL_TASK_QUEUE=default-task-queue
     ports:
       - "8000:8000"
+    volumes:
+      - ../app/data/events:/app/app/data/events
     networks:
       - temporal-network
     restart: unless-stopped

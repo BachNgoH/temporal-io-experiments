@@ -1,0 +1,759 @@
+{
+  "event_id": "1022",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "3",
+    "invoice_number": "1390627",
+    "invoice_detail": {
+      "nbmst": "0302249586",
+      "khmshdon": 1,
+      "khhdon": "C25MAA",
+      "shdon": 1390627,
+      "cqt": "7901",
+      "cttkhac": [
+        {
+          "ttruong": "Mã cửa hàng",
+          "kdlieu": "string",
+          "dlieu": "10010"
+        },
+        {
+          "ttruong": "Thu ngân",
+          "kdlieu": "string",
+          "dlieu": "000059"
+        },
+        {
+          "ttruong": "Số hóa đơn nội bộ",
+          "kdlieu": "string",
+          "dlieu": "ISR20000060768"
+        },
+        {
+          "ttruong": "Quầy",
+          "kdlieu": "string",
+          "dlieu": "20"
+        },
+        {
+          "ttruong": "Ngày mua",
+          "kdlieu": "string",
+          "dlieu": "14/09/2025 10:00"
+        },
+        {
+          "ttruong": "Bên mua mã số thuế",
+          "kdlieu": "string",
+          "dlieu": "031076006187"
+        },
+        {
+          "ttruong": "Hình thức thanh toán",
+          "kdlieu": "string",
+          "dlieu": "TM/CK"
+        },
+        {
+          "ttruong": "TT",
+          "kdlieu": "string",
+          "dlieu": "10010"
+        },
+        {
+          "ttruong": "Ngày in hóa đơn",
+          "kdlieu": "string",
+          "dlieu": "14/09/2025 10:00"
+        },
+        {
+          "ttruong": "Tổng cộng số lượng",
+          "kdlieu": "string",
+          "dlieu": "30"
+        },
+        {
+          "ttruong": "Tổng trọng lượng",
+          "kdlieu": "string",
+          "dlieu": "0,000 ky"
+        }
+      ],
+      "hdon": "01",
+      "hsgoc": "50cc7be2-56d8-494b-9a01-9335be8a2fbc",
+      "hthdon": 5,
+      "id": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+      "idtbao": null,
+      "idtbhgthdon": null,
+      "idtbhgtrinh": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "M1-25-JLX8N-00101390567",
+      "mtdtchieu": "V01013008422359B017315B45F884FFF0D15535710C",
+      "nbdchi": "Khu B, Khu đô thị mới An Phú-An Khánh, Phường Bình Trưng, Thành phố Hồ Chí Minh",
+      "nbten": "CÔNG TY TNHH MM MEGA MARKET (VIỆT NAM)",
+      "ncnhat": "2025-09-14T03:07:04.862Z",
+      "ngcnhat": null,
+      "nky": "2025-09-14T03:06:10Z",
+      "nmmst": "031076006187",
+      "nmten": "HO KINH DOANH TRINH THANH HAI",
+      "nmtnmua": "-",
+      "ntao": "2025-09-14T03:07:04.862Z",
+      "ntnhan": "2025-09-14T03:06:19.954Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-13T17:00:00Z",
+      "tgtcthue": 3813705.0,
+      "tgtthue": 305096.0,
+      "tgtttbchu": "Bon trieu mot tram muoi tam nghin tam tram linh mot dong",
+      "tgtttbso": 4118801.0,
+      "thdon": "Hóa đơn giá trị gia tăng có mã được khởi tạo từ máy tính tiền",
+      "thlap": 202509,
+      "thttltsuat": [
+        {
+          "tsuat": "8%",
+          "thtien": 3813705.0,
+          "tthue": 305096.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng có mã được khởi tạo từ máy tính tiền",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "tttbao": 0,
+      "ttttkhac": [
+        {
+          "ttruong": "Giao hàng",
+          "kdlieu": "string",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "Thẻ ghi nợ",
+          "kdlieu": "numeric",
+          "dlieu": "4118801.0000"
+        },
+        {
+          "ttruong": "Tổng thanh toán bằng chữ",
+          "kdlieu": "string",
+          "dlieu": "Bon trieu mot tram muoi tam nghin tam tram linh mot dong"
+        }
+      ],
+      "ttxly": 8,
+      "tvandnkntt": "0101300842",
+      "ladhddt": 1,
+      "nbsdthoai": "028 3622 2909",
+      "nbcks": "{\"Subject\":\"CN=CÔNG TY TNHH MM MEGA MARKET (VIỆT NAM), O=CÔNG TY TNHH MM MEGA MARKET (VIỆT NAM), L=\\\"Khu B, Khu Đô Thị Mới An Phú-An Khánh, Phường An Phú, Thành Phố Thủ Đức, Thành Phố Hồ Chí Minh, Việt Nam\\\", OID.0.9.2342.19200300.100.1.1=MST:0302249586, C=VN\",\"SerialNumber\":\"5402BC5CACCE669C2024000200089010\",\"Issuer\":\"CN=CA2, O=NACENCOMM SCT, C=VN\",\"NotAfter\":\"2027-03-01T02:29:39\",\"NotBefore\":\"2024-11-25T02:29:39\",\"SigningTime\":\"2025-09-14T10:06:10\"}",
+      "nmsdthoai": null,
+      "nmcccd": null,
+      "bhphap": 0,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tentvandnkntt": null,
+      "kqcht": null,
+      "nbttkhac": [
+        {
+          "ttruong": "DCTDTu",
+          "kdlieu": "string",
+          "dlieu": "mmvn10010.mc@mmvietnam.com"
+        }
+      ],
+      "nmttkhac": [
+        {
+          "ttruong": "MKHang",
+          "kdlieu": "string",
+          "dlieu": "10998100"
+        },
+        {
+          "ttruong": "Họ và tên",
+          "kdlieu": "string",
+          "dlieu": "-"
+        },
+        {
+          "ttruong": "Tên đơn vị",
+          "kdlieu": "string",
+          "dlieu": "HO KINH DOANH TRINH THANH HAI"
+        },
+        {
+          "ttruong": "DChi",
+          "kdlieu": "string",
+          "dlieu": "SO 57 VO VAN TAN, PHUONG XUAN HOA, THANH PHO\nHO CHI MINH, VIET NAM"
+        }
+      ],
+      "ttkhac": [
+        {
+          "ttruong": "Số biên lai",
+          "kdlieu": "string",
+          "dlieu": "ISR20000060768"
+        },
+        {
+          "ttruong": "HTTToan",
+          "kdlieu": "string",
+          "dlieu": "TM/CK"
+        },
+        {
+          "ttruong": "DC TC",
+          "kdlieu": "string",
+          "dlieu": "http://einvoice.mmvietnam.com"
+        },
+        {
+          "ttruong": "Mã TC",
+          "kdlieu": "string",
+          "dlieu": "SGNQCSFHJAKRGHWD"
+        }
+      ],
+      "nmloai": "0300",
+      "tghdmman": 1,
+      "tghdmmldo": null,
+      "cnhan": 1,
+      "kqchtmloi": [],
+      "nmdchi": "SO 57 VO VAN TAN, PHUONG XUAN HOA, THANH PHO\nHO CHI MINH, VIET NAM",
+      "chma": null,
+      "chten": null,
+      "nmshchieu": null,
+      "nbstkhoan": null,
+      "nbtnhang": null,
+      "nmhvtnmhang": null,
+      "thtttoan": "TM/CK",
+      "nmmdvqhnsach": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "0f89b713-4d31-4e4b-b2c0-145946275070",
+          "dgia": 115741.0,
+          "dvtinh": "HOP",
+          "ltsuat": "8%",
+          "mhhdvu": "017168",
+          "sluong": 6.0,
+          "stbchu": null,
+          "stckhau": 20556.0,
+          "stt": 1,
+          "sxep": 1,
+          "tchat": 1,
+          "ten": "BOT THIT GA KNORR 1KG (HOP)",
+          "thtcthue": null,
+          "thtien": 673890.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "53911.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "727801.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "1.00"
+            },
+            {
+              "ttruong": "Mã giảm giá",
+              "kdlieu": "string",
+              "dlieu": "D255196523"
+            }
+          ],
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "82c4348d-5233-45a2-9f11-6d457e6e8554",
+          "dgia": 174074.0,
+          "dvtinh": "HOP",
+          "ltsuat": "8%",
+          "mhhdvu": "017697",
+          "sluong": 5.0,
+          "stbchu": null,
+          "stckhau": 43518.0,
+          "stt": 2,
+          "sxep": 2,
+          "tchat": 1,
+          "ten": "KEM SUA TUOI ANCHOR 1L",
+          "thtcthue": null,
+          "thtien": 826852.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "66148.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "893000.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "1.00"
+            },
+            {
+              "ttruong": "Mã giảm giá",
+              "kdlieu": "string",
+              "dlieu": "D257471507"
+            }
+          ],
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "030952c8-468a-42be-b513-6abfb5e67a73",
+          "dgia": 21296.0,
+          "dvtinh": "CHAI NHUA",
+          "ltsuat": "8%",
+          "mhhdvu": "184192",
+          "sluong": 1.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 3,
+          "sxep": 3,
+          "tchat": 1,
+          "ten": "N.CHAM NNGU CHINSU DENHI 900ML",
+          "thtcthue": null,
+          "thtien": 21296.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "1704.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "23000.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "1.00"
+            }
+          ],
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "b914070a-dfb4-49fe-966e-54ca365d7327",
+          "dgia": 36111.0,
+          "dvtinh": "CHAI NHUA",
+          "ltsuat": "8%",
+          "mhhdvu": "319362",
+          "sluong": 2.0,
+          "stbchu": null,
+          "stckhau": 2779.0,
+          "stt": 4,
+          "sxep": 4,
+          "tchat": 1,
+          "ten": "DAU AN HAPPY PRICE 1L",
+          "thtcthue": null,
+          "thtien": 69443.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "5555.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "74998.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "1.00"
+            },
+            {
+              "ttruong": "M",
+              "kdlieu": "string",
+              "dlieu": "P"
+            },
+            {
+              "ttruong": "Mã giảm giá",
+              "kdlieu": "string",
+              "dlieu": "D253539225"
+            }
+          ],
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "be2207bf-2de7-4aa4-b37f-10b3d8ed6d02",
+          "dgia": 78704.0,
+          "dvtinh": "HOP",
+          "ltsuat": "8%",
+          "mhhdvu": "418303",
+          "sluong": 12.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 5,
+          "sxep": 5,
+          "tchat": 1,
+          "ten": "PM CBC TRUYEN THONG 24P 336G",
+          "thtcthue": null,
+          "thtien": 944448.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "75556.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "1020004.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "1.00"
+            },
+            {
+              "ttruong": "M",
+              "kdlieu": "string",
+              "dlieu": "P"
+            }
+          ],
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+          "id": "068b2ec7-7294-4941-a465-88e9232f4e61",
+          "dgia": 325926.0,
+          "dvtinh": "THUNG",
+          "ltsuat": "8%",
+          "mhhdvu": "442891",
+          "sluong": 4.0,
+          "stbchu": null,
+          "stckhau": 25928.0,
+          "stt": 6,
+          "sxep": 6,
+          "tchat": 1,
+          "ten": "STT NKEM FAMILYMILK 3.5% 1L*12",
+          "thtcthue": null,
+          "thtien": 1277776.0,
+          "tlckhau": null,
+          "tsuat": 0.08,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "102222.0000"
+            },
+            {
+              "ttruong": "Thành tiền có thuế",
+              "kdlieu": "numeric",
+              "dlieu": "1379998.0000"
+            },
+            {
+              "ttruong": "SLg đóng gói",
+              "kdlieu": "string",
+              "dlieu": "12.00"
+            },
+            {
+              "ttruong": "Mã giảm giá",
+              "kdlieu": "string",
+              "dlieu": "D253031256"
+            }
+          ],
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009969000001100302249586020110306C25MAA0407139062705082025091406094118801.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "mtthdtbssrs": null
+    },
+    "line_items": [
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "0f89b713-4d31-4e4b-b2c0-145946275070",
+        "dgia": 115741.0,
+        "dvtinh": "HOP",
+        "ltsuat": "8%",
+        "mhhdvu": "017168",
+        "sluong": 6.0,
+        "stbchu": null,
+        "stckhau": 20556.0,
+        "stt": 1,
+        "sxep": 1,
+        "tchat": 1,
+        "ten": "BOT THIT GA KNORR 1KG (HOP)",
+        "thtcthue": null,
+        "thtien": 673890.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "53911.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "727801.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "1.00"
+          },
+          {
+            "ttruong": "Mã giảm giá",
+            "kdlieu": "string",
+            "dlieu": "D255196523"
+          }
+        ],
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "82c4348d-5233-45a2-9f11-6d457e6e8554",
+        "dgia": 174074.0,
+        "dvtinh": "HOP",
+        "ltsuat": "8%",
+        "mhhdvu": "017697",
+        "sluong": 5.0,
+        "stbchu": null,
+        "stckhau": 43518.0,
+        "stt": 2,
+        "sxep": 2,
+        "tchat": 1,
+        "ten": "KEM SUA TUOI ANCHOR 1L",
+        "thtcthue": null,
+        "thtien": 826852.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "66148.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "893000.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "1.00"
+          },
+          {
+            "ttruong": "Mã giảm giá",
+            "kdlieu": "string",
+            "dlieu": "D257471507"
+          }
+        ],
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "030952c8-468a-42be-b513-6abfb5e67a73",
+        "dgia": 21296.0,
+        "dvtinh": "CHAI NHUA",
+        "ltsuat": "8%",
+        "mhhdvu": "184192",
+        "sluong": 1.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 3,
+        "sxep": 3,
+        "tchat": 1,
+        "ten": "N.CHAM NNGU CHINSU DENHI 900ML",
+        "thtcthue": null,
+        "thtien": 21296.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "1704.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "23000.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "1.00"
+          }
+        ],
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "b914070a-dfb4-49fe-966e-54ca365d7327",
+        "dgia": 36111.0,
+        "dvtinh": "CHAI NHUA",
+        "ltsuat": "8%",
+        "mhhdvu": "319362",
+        "sluong": 2.0,
+        "stbchu": null,
+        "stckhau": 2779.0,
+        "stt": 4,
+        "sxep": 4,
+        "tchat": 1,
+        "ten": "DAU AN HAPPY PRICE 1L",
+        "thtcthue": null,
+        "thtien": 69443.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "5555.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "74998.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "1.00"
+          },
+          {
+            "ttruong": "M",
+            "kdlieu": "string",
+            "dlieu": "P"
+          },
+          {
+            "ttruong": "Mã giảm giá",
+            "kdlieu": "string",
+            "dlieu": "D253539225"
+          }
+        ],
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "be2207bf-2de7-4aa4-b37f-10b3d8ed6d02",
+        "dgia": 78704.0,
+        "dvtinh": "HOP",
+        "ltsuat": "8%",
+        "mhhdvu": "418303",
+        "sluong": 12.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 5,
+        "sxep": 5,
+        "tchat": 1,
+        "ten": "PM CBC TRUYEN THONG 24P 336G",
+        "thtcthue": null,
+        "thtien": 944448.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "75556.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "1020004.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "1.00"
+          },
+          {
+            "ttruong": "M",
+            "kdlieu": "string",
+            "dlieu": "P"
+          }
+        ],
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "a258e65c-d7c8-4b92-a053-f24028c1e23f",
+        "id": "068b2ec7-7294-4941-a465-88e9232f4e61",
+        "dgia": 325926.0,
+        "dvtinh": "THUNG",
+        "ltsuat": "8%",
+        "mhhdvu": "442891",
+        "sluong": 4.0,
+        "stbchu": null,
+        "stckhau": 25928.0,
+        "stt": 6,
+        "sxep": 6,
+        "tchat": 1,
+        "ten": "STT NKEM FAMILYMILK 3.5% 1L*12",
+        "thtcthue": null,
+        "thtien": 1277776.0,
+        "tlckhau": null,
+        "tsuat": 0.08,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "102222.0000"
+          },
+          {
+            "ttruong": "Thành tiền có thuế",
+            "kdlieu": "numeric",
+            "dlieu": "1379998.0000"
+          },
+          {
+            "ttruong": "SLg đóng gói",
+            "kdlieu": "string",
+            "dlieu": "12.00"
+          },
+          {
+            "ttruong": "Mã giảm giá",
+            "kdlieu": "string",
+            "dlieu": "D253031256"
+          }
+        ],
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "HO KINH DOANH TRINH THANH HAI",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "sco-query",
+      "excel_file": "gdt_export_mua_vao_may_tinh_tien_purchase_sco-query_ttxly8_20251013_124959.xlsx",
+      "flow_type": "mua_vao_may_tinh_tien",
+      "khhdon": "C25MAA",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

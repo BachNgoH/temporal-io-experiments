@@ -1,0 +1,244 @@
+{
+  "event_id": "1032",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "11",
+    "invoice_number": "645428",
+    "invoice_detail": {
+      "nbmst": "0308123011",
+      "khmshdon": 1,
+      "khhdon": "C25MCM",
+      "shdon": 645428,
+      "cqt": "7901",
+      "cttkhac": [
+        {
+          "ttruong": "Loại hiển thị",
+          "kdlieu": "string",
+          "dlieu": "HD"
+        },
+        {
+          "ttruong": "QRCODE",
+          "kdlieu": "string",
+          "dlieu": "0308123011/2D8B1YMHY7T/P-21545-12-D16092025-130-01"
+        }
+      ],
+      "hdon": "01",
+      "hsgoc": "0f6e90fb-2aaf-4f97-94be-8079e38f0011",
+      "hthdon": 5,
+      "id": "1e9db49a-1f87-48c5-8629-60b0aa53a795",
+      "idtbao": null,
+      "idtbhgthdon": null,
+      "idtbhgtrinh": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "M1-25-OTNLX-00231277855",
+      "mtdtchieu": "V01013008428F1AC0D3EAB44CAF8A2E1B5438DCB001",
+      "nbdchi": "Tầng 1 + lửng + tầng 2 của Cao ốc PNTechcons số 48 Hoa Sứ, Phường Cầu Kiệu, Thành phố Hồ Chí Minh, Việt Nam",
+      "nbten": "CÔNG TY TNHH MỘT THÀNH VIÊN SÀI GÒN CO.OP RẠCH MIỄU",
+      "ncnhat": "2025-09-16T01:13:14.358Z",
+      "ngcnhat": null,
+      "nky": "2025-09-16T01:09:15Z",
+      "nmmst": "031076006187",
+      "nmten": "TRỊNH THANH HẢI",
+      "nmtnmua": null,
+      "ntao": "2025-09-16T01:13:14.358Z",
+      "ntnhan": "2025-09-16T01:13:14.287Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-15T17:00:00Z",
+      "tgtcthue": 342857.15,
+      "tgtthue": 17142.85,
+      "tgtttbchu": "Ba trăm sáu mươi nghìn đồng",
+      "tgtttbso": 360000.0,
+      "thdon": "Hóa đơn giá trị gia tăng (từ MTT)",
+      "thlap": 202509,
+      "thttltsuat": [
+        {
+          "tsuat": "5%",
+          "thtien": 342857.15,
+          "tthue": 17142.85,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "Hóa đơn giá trị gia tăng (từ MTT)",
+      "ttcktmai": null,
+      "tthai": 1,
+      "tttbao": 0,
+      "ttttkhac": [
+        {
+          "ttruong": "EX1",
+          "kdlieu": "numeric",
+          "dlieu": "0.00000000"
+        },
+        {
+          "ttruong": "EX2",
+          "kdlieu": "numeric",
+          "dlieu": "0.00000000"
+        },
+        {
+          "ttruong": "EX3",
+          "kdlieu": "numeric",
+          "dlieu": "0.00000000"
+        },
+        {
+          "ttruong": "EX5",
+          "kdlieu": "numeric",
+          "dlieu": "0.00000000"
+        }
+      ],
+      "ttxly": 8,
+      "tvandnkntt": "0101300842",
+      "ladhddt": 1,
+      "nbsdthoai": "(028) 3517 1368",
+      "nbcks": "{\"Subject\":\"CN=CÔNG TY TNHH MỘT THÀNH VIÊN SÀI GÒN CO.OP RẠCH MIỄU, O=CÔNG TY TNHH MỘT THÀNH VIÊN SÀI GÒN CO.OP RẠCH MIỄU, L=\\\"48 Hoa Sứ, Phường 07, Quận Phú Nhuận, Thành Phố Hồ Chí Minh, Việt Nam\\\", OID.0.9.2342.19200300.100.1.1=MST:0308123011, C=VN\",\"SerialNumber\":\"5402BC5CACCE669C202400020008A624\",\"Issuer\":\"CN=CA2, O=NACENCOMM SCT, C=VN\",\"NotAfter\":\"2028-03-03T03:13:42\",\"NotBefore\":\"2024-11-29T03:13:42\",\"SigningTime\":\"2025-09-16T08:09:15\"}",
+      "nmsdthoai": "0962587934",
+      "nmcccd": null,
+      "bhphap": 0,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tentvandnkntt": null,
+      "kqcht": null,
+      "nbttkhac": [
+        {
+          "ttruong": "NOIXUAT",
+          "kdlieu": "string",
+          "dlieu": "Co.opmart Rạch Miễu"
+        }
+      ],
+      "nmttkhac": [
+        {
+          "ttruong": "EMAIL",
+          "kdlieu": "string",
+          "dlieu": "hddt.ngo8vtt@gmail.com"
+        }
+      ],
+      "ttkhac": [
+        {
+          "ttruong": "Mã TC",
+          "kdlieu": "string",
+          "dlieu": "2D8B1YMHY7T"
+        },
+        {
+          "ttruong": "ĐCTC",
+          "kdlieu": "string",
+          "dlieu": "https://saigoncoop.einvoice.com.vn/"
+        },
+        {
+          "ttruong": "Trang thái DC",
+          "kdlieu": "string",
+          "dlieu": "1"
+        },
+        {
+          "ttruong": "SBL",
+          "kdlieu": "string",
+          "dlieu": "P-21545-12-D16092025-130-01"
+        }
+      ],
+      "nmloai": "0300",
+      "tghdmman": 1,
+      "tghdmmldo": null,
+      "cnhan": 1,
+      "kqchtmloi": [],
+      "nmdchi": "SỐ 57 VÕ VĂN TẦN, PHƯỜNG XUÂN HOÀ, THÀNH PHỐ HỒ CHÍ MINH, VIỆT NAM",
+      "chma": "130",
+      "chten": "CO.OPMART RACH MIEU ( LUÔN CHỌN)",
+      "nmshchieu": null,
+      "nbstkhoan": null,
+      "nbtnhang": null,
+      "nmhvtnmhang": null,
+      "thtttoan": "TM/CK",
+      "nmmdvqhnsach": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "1e9db49a-1f87-48c5-8629-60b0aa53a795",
+          "id": "318a9666-3f3c-456c-a880-886fe5df8bae",
+          "dgia": 34285.71,
+          "dvtinh": "1 Don vi",
+          "ltsuat": "5%",
+          "mhhdvu": "3456065",
+          "sluong": 10.0,
+          "stbchu": null,
+          "stckhau": null,
+          "stt": 1,
+          "sxep": 1,
+          "tchat": 1,
+          "ten": "Chan ga CP 500g",
+          "thtcthue": null,
+          "thtien": 342857.15,
+          "tlckhau": null,
+          "tsuat": 0.05,
+          "tthue": null,
+          "ttkhac": [
+            {
+              "ttruong": "Tiền thuế",
+              "kdlieu": "numeric",
+              "dlieu": "17142.85"
+            }
+          ],
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009967000001100308123011020110306C25MCM04066454280508202509160608360000.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "mtthdtbssrs": null
+    },
+    "line_items": [
+      {
+        "idhdon": "1e9db49a-1f87-48c5-8629-60b0aa53a795",
+        "id": "318a9666-3f3c-456c-a880-886fe5df8bae",
+        "dgia": 34285.71,
+        "dvtinh": "1 Don vi",
+        "ltsuat": "5%",
+        "mhhdvu": "3456065",
+        "sluong": 10.0,
+        "stbchu": null,
+        "stckhau": null,
+        "stt": 1,
+        "sxep": 1,
+        "tchat": 1,
+        "ten": "Chan ga CP 500g",
+        "thtcthue": null,
+        "thtien": 342857.15,
+        "tlckhau": null,
+        "tsuat": 0.05,
+        "tthue": null,
+        "ttkhac": [
+          {
+            "ttruong": "Tiền thuế",
+            "kdlieu": "numeric",
+            "dlieu": "17142.85"
+          }
+        ],
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "TRỊNH THANH HẢI",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "sco-query",
+      "excel_file": "gdt_export_mua_vao_may_tinh_tien_purchase_sco-query_ttxly8_20251013_124959.xlsx",
+      "flow_type": "mua_vao_may_tinh_tien",
+      "khhdon": "C25MCM",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

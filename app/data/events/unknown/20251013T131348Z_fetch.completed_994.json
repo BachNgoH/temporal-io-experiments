@@ -1,0 +1,678 @@
+{
+  "event_id": "994",
+  "event_name": "fetch.completed",
+  "payload": {
+    "company_id": null,
+    "invoice_id": "7",
+    "invoice_number": "537",
+    "invoice_detail": {
+      "nbmst": "0302081661",
+      "khmshdon": 1,
+      "khhdon": "C25TMV",
+      "shdon": 537,
+      "cqt": "7904",
+      "cttkhac": [],
+      "dvtte": "VND",
+      "hdon": "01",
+      "hsgcma": "192fa8f9-a04f-45f2-92d2-43e7bdb664c6",
+      "hsgoc": "0ab14d10-28a3-45db-bd3e-da04ac2544c4",
+      "hthdon": 1,
+      "htttoan": 9,
+      "id": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+      "idtbao": null,
+      "khdon": null,
+      "khhdgoc": null,
+      "khmshdgoc": null,
+      "lhdgoc": null,
+      "mhdon": "00B8482E977A444546BF593BC6558FD559",
+      "mtdiep": null,
+      "mtdtchieu": "V0100109106C8B4180F56C940EF99FE1FFEAAFDEE5E",
+      "nbdchi": "354 Nguyễn Đình Chiểu, Phường Bàn Cờ, Tp.Hồ Chí Minh",
+      "chma": null,
+      "chten": null,
+      "nbhdktngay": null,
+      "nbhdktso": null,
+      "nbhdso": null,
+      "nblddnbo": null,
+      "nbptvchuyen": null,
+      "nbstkhoan": "117000039070",
+      "nbten": "DNTN MỸ VÂN",
+      "nbtnhang": "Ngân Hàng TMCP Công Thương VN - CN HCM",
+      "nbtnvchuyen": null,
+      "nbttkhac": [
+        {
+          "ttruong": "Quận, huyện người bán",
+          "kdlieu": "string",
+          "dlieu": "Q.03"
+        },
+        {
+          "ttruong": "Tỉnh/Thành phố người bán",
+          "kdlieu": "string",
+          "dlieu": "TPHCM"
+        },
+        {
+          "ttruong": "Mã quốc gia người bán",
+          "kdlieu": "string",
+          "dlieu": "84"
+        },
+        {
+          "ttruong": "Link tra cứu người bán",
+          "kdlieu": "string",
+          "dlieu": null
+        }
+      ],
+      "ncma": "2025-09-30T11:55:35.388Z",
+      "ncnhat": "2025-09-30T11:55:35.395Z",
+      "ngcnhat": "tvan_viettel",
+      "nky": "2025-09-30T11:55:35Z",
+      "nmdchi": "Số 57 Võ Văn Tần  Phường Xuân Hòa ,Thành Phố Hồ Chí Minh",
+      "nmmst": "031076006187",
+      "nmstkhoan": null,
+      "nmten": "Trịnh Thanh Hải",
+      "nmtnhang": null,
+      "nmtnmua": null,
+      "nmttkhac": [
+        {
+          "ttruong": "Loại giấy tờ  người mua",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "Số giấy tờ  người mua",
+          "kdlieu": "string",
+          "dlieu": null
+        }
+      ],
+      "ntao": "2025-09-30T11:55:35.348Z",
+      "ntnhan": "2025-09-30T11:55:35.313Z",
+      "pban": "2.1.0",
+      "ptgui": 1,
+      "shdgoc": null,
+      "tchat": 1,
+      "tdlap": "2025-09-29T17:00:00Z",
+      "tgia": 1.0,
+      "tgtcthue": 4262726.0,
+      "tgtthue": 426273.0,
+      "tgtttbchu": "Bốn triệu sáu trăm tám mươi tám nghìn chín trăm chín mươi chín đồng",
+      "tgtttbso": 4688999.0,
+      "thdon": "HÓA ĐƠN GIÁ TRỊ GIA TĂNG TT78",
+      "thlap": 202509,
+      "thttlphi": [],
+      "thttltsuat": [
+        {
+          "tsuat": "10%",
+          "thtien": 4262726.0,
+          "tthue": 426273.0,
+          "gttsuat": null
+        }
+      ],
+      "tlhdon": "HÓA ĐƠN GIÁ TRỊ GIA TĂNG TT78",
+      "ttcktmai": 0.0,
+      "tthai": 1,
+      "ttkhac": [
+        {
+          "ttruong": "Quy đổi ra VND",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "Số đơn hàng",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "Ghi chú",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "Ghi chú",
+          "kdlieu": "string",
+          "dlieu": null
+        },
+        {
+          "ttruong": "Trạng thái thanh toán",
+          "kdlieu": "string",
+          "dlieu": "Đã thanh toán"
+        },
+        {
+          "ttruong": "Mã số bí mật",
+          "kdlieu": "string",
+          "dlieu": "71EIKZ10E15730P"
+        },
+        {
+          "ttruong": "Ghi chú hóa đơn",
+          "kdlieu": "string",
+          "dlieu": null
+        }
+      ],
+      "tttbao": 1,
+      "ttttkhac": [
+        {
+          "ttruong": "Tổng tiền thuế tiêu thụ đặc biệt",
+          "kdlieu": "string",
+          "dlieu": "0"
+        },
+        {
+          "ttruong": "Tổng tiền phí",
+          "kdlieu": "string",
+          "dlieu": "0"
+        }
+      ],
+      "ttxly": 5,
+      "tvandnkntt": "0100109106",
+      "mhso": null,
+      "ladhddt": 1,
+      "mkhang": "N8",
+      "nbsdthoai": "(028) 38334618",
+      "nbdctdtu": "myvandntn@yahoo.com",
+      "nbfax": "(028) 38341157",
+      "nbwebsite": null,
+      "nbcks": "{\"Subject\":\"1.2.840.113549.1.9.1=#16136d7976616e646e746e407961686f6f2e636f6d,UID=MST:0302081661,CN=DNTN MỸ VÂN,L=TPHCM,C=VN\",\"SerialNumber\":\"5404FFFEB7033FB324B728D3C2EC041E\",\"Issuer\":\"C=VN, O=Viettel Group, CN=Viettel-CA SHA2\",\"NotAfter\":\"2026-09-08T06:47:00\",\"NotBefore\":\"2025-09-08T06:47:00\",\"SigningTime\":\"2025-09-30T18:55:35\"}",
+      "nmsdthoai": null,
+      "nmdctdtu": "hddt.ngo8vtt@gmail.com",
+      "nmcmnd": null,
+      "nmcks": null,
+      "bhphap": 0,
+      "hddunlap": null,
+      "gchdgoc": null,
+      "tbhgtngay": null,
+      "bhpldo": null,
+      "bhpcbo": null,
+      "bhpngay": null,
+      "tdlhdgoc": null,
+      "tgtphi": null,
+      "unhiem": null,
+      "mstdvnunlhdon": null,
+      "tdvnunlhdon": null,
+      "nbmdvqhnsach": null,
+      "nbsqdinh": null,
+      "nbncqdinh": null,
+      "nbcqcqdinh": null,
+      "nbhtban": null,
+      "nmmdvqhnsach": null,
+      "nmddvchden": null,
+      "nmtgvchdtu": null,
+      "nmtgvchdden": null,
+      "nbtnban": null,
+      "dcdvnunlhdon": null,
+      "dksbke": null,
+      "dknlbke": null,
+      "thtttoan": "TM",
+      "msttcgp": "0100109106",
+      "cqtcks": "{\"Subject\":\"CN=CỤC THUẾ,O=BỘ TÀI CHÍNH,L=Hà Nội,C=VN\",\"SerialNumber\":\"2A05F812673607B0\",\"Issuer\":\"CN=CA phục vụ các cơ quan Nhà nước G2, O=Ban Cơ yếu Chính phủ, C=VN\",\"NotAfter\":\"2030-03-12T16:36:53\",\"NotBefore\":\"2025-03-13T16:36:53\",\"SigningTime\":\"2025-09-30T18:55:35\"}",
+      "gchu": "",
+      "kqcht": null,
+      "hdntgia": null,
+      "tgtkcthue": null,
+      "tgtkhac": null,
+      "nmshchieu": null,
+      "nmnchchieu": null,
+      "nmnhhhchieu": null,
+      "nmqtich": null,
+      "ktkhthue": null,
+      "nmstttoan": null,
+      "nmttttoan": null,
+      "hdhhdvu": [
+        {
+          "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+          "id": "e9d25c25-ace9-4c08-bbfe-07e2e21c57ed",
+          "dgia": 318182.0,
+          "dvtinh": "Kết",
+          "ltsuat": "10%",
+          "sluong": 4.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 1,
+          "tchat": 1,
+          "ten": "Bia Tiger chai bạc",
+          "thtcthue": null,
+          "thtien": 1272728.0,
+          "tlckhau": null,
+          "tsuat": 0.1,
+          "tthue": null,
+          "sxep": 1,
+          "ttkhac": [
+            {
+              "ttruong": "Số lô",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Hạn dùng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Ghi chú dòng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Thành tiền thanh toán của hàng hóa",
+              "kdlieu": "string",
+              "dlieu": "1400001"
+            },
+            {
+              "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+              "kdlieu": "string",
+              "dlieu": "127273"
+            },
+            {
+              "ttruong": "Chiết khấu lần 2",
+              "kdlieu": "string",
+              "dlieu": null
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+          "id": "d62c56aa-341e-473b-9e79-7394c4d5e4b1",
+          "dgia": 303636.0,
+          "dvtinh": "Kết",
+          "ltsuat": "10%",
+          "sluong": 4.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 2,
+          "tchat": 1,
+          "ten": "Bia Tiger chai nhỏ 24x300ml",
+          "thtcthue": null,
+          "thtien": 1214544.0,
+          "tlckhau": null,
+          "tsuat": 0.1,
+          "tthue": null,
+          "sxep": 2,
+          "ttkhac": [
+            {
+              "ttruong": "Số lô",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Hạn dùng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Ghi chú dòng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Thành tiền thanh toán của hàng hóa",
+              "kdlieu": "string",
+              "dlieu": "1335998"
+            },
+            {
+              "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+              "kdlieu": "string",
+              "dlieu": "121454"
+            },
+            {
+              "ttruong": "Chiết khấu lần 2",
+              "kdlieu": "string",
+              "dlieu": null
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+          "id": "1eb488be-0210-42b2-8621-a1e78a9d22c5",
+          "dgia": 294545.0,
+          "dvtinh": "Kết",
+          "ltsuat": "10%",
+          "sluong": 3.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 3,
+          "tchat": 1,
+          "ten": "Bia chai sg Special",
+          "thtcthue": null,
+          "thtien": 883635.0,
+          "tlckhau": null,
+          "tsuat": 0.1,
+          "tthue": null,
+          "sxep": 3,
+          "ttkhac": [
+            {
+              "ttruong": "Số lô",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Hạn dùng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Ghi chú dòng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Thành tiền thanh toán của hàng hóa",
+              "kdlieu": "string",
+              "dlieu": "971999"
+            },
+            {
+              "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+              "kdlieu": "string",
+              "dlieu": "88364"
+            },
+            {
+              "ttruong": "Chiết khấu lần 2",
+              "kdlieu": "string",
+              "dlieu": null
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        },
+        {
+          "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+          "id": "8f90e073-e7f3-487f-aa0a-05b406cc5ad9",
+          "dgia": 297273.0,
+          "dvtinh": "Kết",
+          "ltsuat": "10%",
+          "sluong": 3.0,
+          "stbchu": null,
+          "stckhau": 0.0,
+          "stt": 4,
+          "tchat": 1,
+          "ten": "Bia Chai Sg Chill",
+          "thtcthue": null,
+          "thtien": 891819.0,
+          "tlckhau": null,
+          "tsuat": 0.1,
+          "tthue": null,
+          "sxep": 4,
+          "ttkhac": [
+            {
+              "ttruong": "Số lô",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Hạn dùng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Ghi chú dòng",
+              "kdlieu": "string",
+              "dlieu": null
+            },
+            {
+              "ttruong": "Thành tiền thanh toán của hàng hóa",
+              "kdlieu": "string",
+              "dlieu": "981001"
+            },
+            {
+              "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+              "kdlieu": "string",
+              "dlieu": "89182"
+            },
+            {
+              "ttruong": "Chiết khấu lần 2",
+              "kdlieu": "string",
+              "dlieu": null
+            }
+          ],
+          "dvtte": null,
+          "tgia": null,
+          "tthhdtrung": []
+        }
+      ],
+      "qrcode": "00020101021202000400260052005300540058005900600062009965000001100302081661020110306C25TMV040353705082025093006094688999.0",
+      "ttmstten": null,
+      "ladhddtten": null,
+      "hdxkhau": null,
+      "hdxkptquan": null,
+      "hdgktkhthue": null,
+      "hdonLquans": null,
+      "tthdclquan": false,
+      "pdndungs": null,
+      "hdtbssrses": null,
+      "hdTrung": null,
+      "isHDTrung": null,
+      "hdcttchinh": 0
+    },
+    "line_items": [
+      {
+        "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+        "id": "e9d25c25-ace9-4c08-bbfe-07e2e21c57ed",
+        "dgia": 318182.0,
+        "dvtinh": "Kết",
+        "ltsuat": "10%",
+        "sluong": 4.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 1,
+        "tchat": 1,
+        "ten": "Bia Tiger chai bạc",
+        "thtcthue": null,
+        "thtien": 1272728.0,
+        "tlckhau": null,
+        "tsuat": 0.1,
+        "tthue": null,
+        "sxep": 1,
+        "ttkhac": [
+          {
+            "ttruong": "Số lô",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Hạn dùng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Ghi chú dòng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Thành tiền thanh toán của hàng hóa",
+            "kdlieu": "string",
+            "dlieu": "1400001"
+          },
+          {
+            "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+            "kdlieu": "string",
+            "dlieu": "127273"
+          },
+          {
+            "ttruong": "Chiết khấu lần 2",
+            "kdlieu": "string",
+            "dlieu": null
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+        "id": "d62c56aa-341e-473b-9e79-7394c4d5e4b1",
+        "dgia": 303636.0,
+        "dvtinh": "Kết",
+        "ltsuat": "10%",
+        "sluong": 4.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 2,
+        "tchat": 1,
+        "ten": "Bia Tiger chai nhỏ 24x300ml",
+        "thtcthue": null,
+        "thtien": 1214544.0,
+        "tlckhau": null,
+        "tsuat": 0.1,
+        "tthue": null,
+        "sxep": 2,
+        "ttkhac": [
+          {
+            "ttruong": "Số lô",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Hạn dùng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Ghi chú dòng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Thành tiền thanh toán của hàng hóa",
+            "kdlieu": "string",
+            "dlieu": "1335998"
+          },
+          {
+            "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+            "kdlieu": "string",
+            "dlieu": "121454"
+          },
+          {
+            "ttruong": "Chiết khấu lần 2",
+            "kdlieu": "string",
+            "dlieu": null
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+        "id": "1eb488be-0210-42b2-8621-a1e78a9d22c5",
+        "dgia": 294545.0,
+        "dvtinh": "Kết",
+        "ltsuat": "10%",
+        "sluong": 3.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 3,
+        "tchat": 1,
+        "ten": "Bia chai sg Special",
+        "thtcthue": null,
+        "thtien": 883635.0,
+        "tlckhau": null,
+        "tsuat": 0.1,
+        "tthue": null,
+        "sxep": 3,
+        "ttkhac": [
+          {
+            "ttruong": "Số lô",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Hạn dùng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Ghi chú dòng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Thành tiền thanh toán của hàng hóa",
+            "kdlieu": "string",
+            "dlieu": "971999"
+          },
+          {
+            "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+            "kdlieu": "string",
+            "dlieu": "88364"
+          },
+          {
+            "ttruong": "Chiết khấu lần 2",
+            "kdlieu": "string",
+            "dlieu": null
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      },
+      {
+        "idhdon": "c5078c85-c00d-4be2-8182-5afaa2ad676a",
+        "id": "8f90e073-e7f3-487f-aa0a-05b406cc5ad9",
+        "dgia": 297273.0,
+        "dvtinh": "Kết",
+        "ltsuat": "10%",
+        "sluong": 3.0,
+        "stbchu": null,
+        "stckhau": 0.0,
+        "stt": 4,
+        "tchat": 1,
+        "ten": "Bia Chai Sg Chill",
+        "thtcthue": null,
+        "thtien": 891819.0,
+        "tlckhau": null,
+        "tsuat": 0.1,
+        "tthue": null,
+        "sxep": 4,
+        "ttkhac": [
+          {
+            "ttruong": "Số lô",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Hạn dùng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Ghi chú dòng",
+            "kdlieu": "string",
+            "dlieu": null
+          },
+          {
+            "ttruong": "Thành tiền thanh toán của hàng hóa",
+            "kdlieu": "string",
+            "dlieu": "981001"
+          },
+          {
+            "ttruong": "Tiền thuế dòng (Tiền thuế GTGT)",
+            "kdlieu": "string",
+            "dlieu": "89182"
+          },
+          {
+            "ttruong": "Chiết khấu lần 2",
+            "kdlieu": "string",
+            "dlieu": null
+          }
+        ],
+        "dvtte": null,
+        "tgia": null,
+        "tthhdtrung": []
+      }
+    ],
+    "metadata": {
+      "buyer_name": "Trịnh Thanh Hải",
+      "buyer_tax_code": "031076006187",
+      "endpoint_kind": "query",
+      "excel_file": "gdt_export_mua_vao_dien_tu_purchase_query_ttxly5_20251013_124941.xlsx",
+      "flow_type": "mua_vao_dien_tu",
+      "khhdon": "C25TMV",
+      "khmshdon": "1",
+      "source": "excel_discovery",
+      "status": "Hóa đơn mới"
+    }
+  }
+}

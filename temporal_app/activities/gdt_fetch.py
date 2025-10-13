@@ -3,6 +3,7 @@
 import httpx
 from datetime import datetime, timedelta
 from temporalio import activity
+from temporal_app.activities.hooks import emit_on_complete
 
 from temporal_app.models import GdtInvoice, GdtSession, InvoiceFetchResult
 
@@ -20,6 +21,27 @@ REQUEST_TIMEOUT_SECONDS = 30.0
 
 
 @activity.defn
+@emit_on_complete(
+    event_name="fetch.completed",
+    payload_from_result=lambda r, invoice, session: {
+        "company_id": getattr(invoice, "metadata", {}).get("company_id"),
+        "invoice_id": getattr(invoice, "invoice_id", ""),
+        "invoice_number": getattr(invoice, "invoice_number", ""),
+        "invoice_detail": r.get("invoice_detail"),
+        "line_items": r.get("line_items", []),
+        "metadata": getattr(invoice, "metadata", {}),
+    },
+    compact_from_result=lambda r, invoice, session: InvoiceFetchResult(
+        invoice_id=getattr(invoice, "invoice_id", ""),
+        success=True,
+        data={
+            "invoice_id": getattr(invoice, "invoice_id", ""),
+            "invoice_number": getattr(invoice, "invoice_number", ""),
+            "metadata": getattr(invoice, "metadata", {}),
+            "line_items_count": len(r.get("line_items", [])),
+        },
+    ),
+)
 async def fetch_invoice(
     invoice: GdtInvoice,
     session: GdtSession,
@@ -189,17 +211,8 @@ async def fetch_invoice(
                             f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
                         )
 
-                        # Compact payload to reduce workflow history size
-                        return InvoiceFetchResult(
-                            invoice_id=invoice.invoice_id,
-                            success=True,
-                            data={
-                                "invoice_id": invoice.invoice_id,
-                                "invoice_number": invoice.invoice_number,
-                                "metadata": invoice.metadata,
-                                "line_items_count": len(line_items),
-                            },
-                        )
+                        # Return full data to decorator for webhook; decorator returns compact to workflow
+                        return {"invoice_detail": invoice_detail, "line_items": line_items}
                     else:
                         activity.logger.error(f"Empty JSON response for invoice {invoice.invoice_id}, Response: {response.text[:500]}, Request URL: {full_url}, Response status: {response.status_code}, Raw Response: {response}")
                         raise Exception(f"Empty JSON response from detail API for invoice {invoice.invoice_id}")
