@@ -61,32 +61,14 @@ TEMPORAL_TASK_QUEUE=default-task-queue
 
 ## Step 2: Deploy to Compute Engine
 
-### Option A: Automated Deployment (Recommended)
+### 2.1 Create Compute Engine Instance (if needed)
 
-Run the deployment script from your local machine:
-
-```bash
-cd deployment
-./deploy-to-gcp.sh
-```
-
-This will:
-1. Create `ai-core-instance` (if doesn't exist)
-2. Upload application code
-3. Install Docker & Docker Compose
-4. Start all services (Temporal, FastAPI, Workers)
-5. Configure firewall rules
-
-### Option B: Manual Deployment
-
-If you prefer manual deployment:
-
-#### 2.1 Create Compute Engine Instance
+If your instance doesn't exist yet, create it:
 
 ```bash
 gcloud compute instances create ai-core-instance \
   --project=YOUR_PROJECT_ID \
-  --zone=us-central1-a \
+  --zone=asia-southeast1-a \
   --machine-type=e2-medium \
   --boot-disk-size=30GB \
   --boot-disk-type=pd-balanced \
@@ -96,31 +78,55 @@ gcloud compute instances create ai-core-instance \
   --metadata=enable-oslogin=TRUE
 ```
 
-#### 2.2 Upload Code to Instance
+**Note:** Replace `asia-southeast1-a` with your preferred zone (e.g., `us-central1-a` for US, `asia-southeast1-a` for Singapore).
+
+### 2.2 Clone Repository on Instance
+
+SSH to the instance and clone the repository:
 
 ```bash
-# From project root
-gcloud compute scp --recurse \
-  app/ \
-  temporal_app/ \
-  deployment/ \
-  pyproject.toml \
-  .python-version \
-  ai-core-instance:~/temporal-deployment/ \
-  --zone=us-central1-a
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  sudo mkdir -p /opt && \
+  cd ~ && \
+  rm -rf temporal-deployment && \
+  git clone https://YOUR_GITHUB_TOKEN@github.com/finizi-app/ai-core-temporal.git temporal-deployment && \
+  sudo mv temporal-deployment /opt/ && \
+  sudo chown -R \$USER:\$USER /opt/temporal-deployment
+"
 ```
 
-#### 2.3 SSH into Instance and Run Setup
+**Important:** Replace `YOUR_GITHUB_TOKEN` with your GitHub personal access token.
+
+### 2.3 Transfer Credentials and Environment
+
+Transfer your local `.env` and `credentials/` folder to the instance:
 
 ```bash
-# SSH to instance
-gcloud compute ssh ai-core-instance --zone=us-central1-a
+gcloud compute scp --zone=asia-southeast1-a --recurse \
+  credentials/ ai-core-instance:/opt/temporal-deployment/
 
-# Run setup script
-cd ~/temporal-deployment/deployment
-chmod +x setup-compute-engine.sh
-./setup-compute-engine.sh
+gcloud compute scp --zone=asia-southeast1-a \
+  .env ai-core-instance:/opt/temporal-deployment/
 ```
+
+### 2.4 Deploy Services
+
+Start all services with Docker Compose:
+
+```bash
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  cd /opt/temporal-deployment && \
+  sudo docker compose -f deployment/docker-compose.yml up -d --build
+"
+```
+
+This will:
+1. Build Docker images for API and Workers
+2. Start PostgreSQL (Temporal state)
+3. Start Temporal Server
+4. Start Temporal Web UI
+5. Start FastAPI
+6. Start 2 base workers
 
 ## Step 3: Verify Deployment
 
@@ -157,15 +163,24 @@ Open in browser: `http://YOUR_EXTERNAL_IP:8080`
 
 You should see the Temporal Web UI showing workflows, workers, and task queues.
 
-### 3.3 Check Base Workers
+### 3.3 Check Service Status
+
+View all running services:
 
 ```bash
-# SSH to instance
-gcloud compute ssh ai-core-instance --zone=us-central1-a
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  cd /opt/temporal-deployment && \
+  sudo docker compose -f deployment/docker-compose.yml ps
+"
+```
 
-# View worker logs
-cd ~/temporal-deployment
-docker-compose -f deployment/docker-compose.yml logs -f temporal-worker
+### 3.4 View Worker Logs
+
+```bash
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  cd /opt/temporal-deployment && \
+  sudo docker compose -f deployment/docker-compose.yml logs -f temporal-worker
+"
 ```
 
 Expected logs:
@@ -295,12 +310,11 @@ gcloud logging read "resource.type=gce_instance AND resource.labels.instance_id=
 ### 6.4 Backup PostgreSQL Data
 
 ```bash
-# SSH to instance
-gcloud compute ssh ai-core-instance --zone=us-central1-a
-
-# Backup Temporal database
-docker-compose -f deployment/docker-compose.yml exec postgresql \
-  pg_dump -U temporal temporal > temporal_backup.sql
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  cd /opt/temporal-deployment && \
+  sudo docker compose -f deployment/docker-compose.yml exec postgresql \
+    pg_dump -U temporal temporal > temporal_backup.sql
+"
 ```
 
 ### 6.5 Auto-trigger Burst Workers
@@ -333,7 +347,7 @@ gcloud compute firewall-rules create temporal-server \
 
 # Add tag to instance
 gcloud compute instances add-tags ai-core-instance \
-  --zone=us-central1-a \
+  --zone=asia-southeast1-a \
   --tags=temporal-server
 ```
 
@@ -342,8 +356,10 @@ gcloud compute instances add-tags ai-core-instance \
 **Solution:** Check TEMPORAL_HOST environment variable
 
 ```bash
-# On Compute Engine instance
-docker-compose -f deployment/docker-compose.yml logs temporal-worker
+gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+  cd /opt/temporal-deployment && \
+  sudo docker compose -f deployment/docker-compose.yml logs temporal-worker
+"
 
 # Should see: "Connected to Temporal: temporal:7233"
 ```
@@ -365,11 +381,11 @@ telnet YOUR_EXTERNAL_IP 7233
 
 ```bash
 # Upgrade to larger instance
-gcloud compute instances stop ai-core-instance --zone=us-central1-a
+gcloud compute instances stop ai-core-instance --zone=asia-southeast1-a
 gcloud compute instances set-machine-type ai-core-instance \
   --machine-type=e2-standard-2 \
-  --zone=us-central1-a
-gcloud compute instances start ai-core-instance --zone=us-central1-a
+  --zone=asia-southeast1-a
+gcloud compute instances start ai-core-instance --zone=asia-southeast1-a
 ```
 
 ## Cost Optimization
@@ -392,12 +408,15 @@ gcloud compute instances start ai-core-instance --zone=us-central1-a
 
 2. **Schedule Instance Downtime** (stop at night)
    ```bash
-   gcloud compute instances stop ai-core-instance --zone=us-central1-a
+   gcloud compute instances stop ai-core-instance --zone=asia-southeast1-a
    ```
 
 3. **Reduce Base Workers** (if low traffic)
    ```bash
-   docker-compose up -d --scale temporal-worker=1
+   gcloud compute ssh ai-core-instance --zone=asia-southeast1-a --command="
+     cd /opt/temporal-deployment && \
+     sudo docker compose -f deployment/docker-compose.yml up -d --scale temporal-worker=1
+   "
    ```
 
 ## Scaling Guide
