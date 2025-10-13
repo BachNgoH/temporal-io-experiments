@@ -53,3 +53,67 @@ class InvoiceFetchResult:
     success: bool
     data: dict[str, Any] | None = None
     error: str | None = None
+
+
+# ============================================================================
+# Event DTOs (typed payloads for start/end hooks)
+# ============================================================================
+
+
+@dataclass
+class SummaryV1:
+    """Small, serializable summary of a run."""
+
+    total_invoices: int
+    completed_invoices: int
+    failed_invoices: int
+    success_rate: float
+
+
+@dataclass
+class WorkflowStartEventV1:
+    """Event payload for workflow start."""
+
+    workflow_id: str
+    run_id: str
+    company_id: str
+    date_range_start: str
+    date_range_end: str
+    flows: list[str]
+    run_ref: str | None = None
+
+
+@dataclass
+class WorkflowEndEventV1:
+    """Event payload for workflow completion."""
+
+    workflow_id: str
+    run_id: str
+    company_id: str
+    status: str  # "completed" | "failed"
+    summary: SummaryV1
+    result_ref: str | None = None
+
+
+@dataclass
+class DiscoveryEventV1:
+    """Event payload for discovery lifecycle events."""
+
+    phase: str  # "start" | "end"
+    company_id: str
+    method: str  # "api" | "excel"
+    flows: list[str]
+    invoice_count: int | None = None
+
+
+@dataclass
+class FetchEventV1:
+    """Event payload for per-invoice fetch lifecycle events."""
+
+    phase: str  # "start" | "end"
+    company_id: str
+    invoice_id: str
+    flow_type: str | None
+    endpoint_kind: str | None
+    success: bool | None = None
+    error: str | None = None

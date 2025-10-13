@@ -107,36 +107,50 @@ async def _download_excel_files_for_flows(
         "mua_vao_may_tinh_tien": "purchase",
     }
     
-    # Get unique invoice types from flows
-    invoice_types = list(set(flow_to_invoice_type.get(flow, "purchase") for flow in flows))
-    activity.logger.info(f"📋 Invoice types to download: {invoice_types}")
-    
-    # Processing statuses for purchase invoices (5, 6, 8)
-    ttxly_values = [5, 6, 8]
-    
     downloaded_files = []
     
-    # Download Excel files for each invoice type and processing status
-    for invoice_type in invoice_types:
-        activity.logger.info(f"📥 Downloading Excel files for {invoice_type} invoices")
-        
-        for ttxly in ttxly_values:
+    # Download Excel files per flow mapped to its correct endpoint
+    for flow in flows:
+        invoice_type = flow_to_invoice_type.get(flow, "purchase")
+        endpoint_kind = "sco-query" if "may_tinh_tien" in flow else "query"
+        activity.logger.info(
+            f"📥 Downloading Excel for flow={flow} (type={invoice_type}, endpoint={endpoint_kind})"
+        )
+
+        # For purchase invoices, iterate ttxly; for sold, no ttxly
+        # 5: Đã cấp mã hoá đơn, 6: Cục thuế đã nhận không mã, 8: Cục thuế đã nhận hoá đơn có mã khởi tạo từ máy tính tiền
+        ttxly_iterable = [5, 6, 8] if invoice_type == "purchase" else [None]
+
+        for ttxly in ttxly_iterable:
             try:
                 file_path = await _download_single_excel_file(
-                    session, start_date, end_date, invoice_type, ttxly, temp_dir
+                    session=session,
+                    start_date=start_date,
+                    end_date=end_date,
+                    invoice_type=invoice_type,
+                    endpoint_kind=endpoint_kind,
+                    ttxly=ttxly,
+                    temp_dir=temp_dir,
+                    flow_code=flow,
                 )
-                
+
                 if file_path:
                     downloaded_files.append(file_path)
                     activity.logger.info(f"✅ Downloaded: {os.path.basename(file_path)}")
                 else:
-                    activity.logger.warning(f"⚠️ Failed to download {invoice_type} with ttxly={ttxly}")
-                
+                    suffix = f" ttxly={ttxly}" if ttxly is not None else ""
+                    activity.logger.warning(
+                        f"⚠️ Failed to download flow={flow} ({invoice_type}) from {endpoint_kind}{suffix}"
+                    )
+
                 # Delay between downloads to avoid rate limiting
                 await asyncio.sleep(3.0)
-                
+
             except Exception as e:
-                activity.logger.error(f"❌ Error downloading {invoice_type} ttxly={ttxly}: {str(e)}")
+                suffix = f" ttxly={ttxly}" if ttxly is not None else ""
+                activity.logger.error(
+                    f"❌ Error downloading flow={flow} ({invoice_type}) from {endpoint_kind}{suffix}: {str(e)}"
+                )
                 continue
     
     activity.logger.info(f"📊 Downloaded {len(downloaded_files)} Excel files")
@@ -148,8 +162,10 @@ async def _download_single_excel_file(
     start_date: date,
     end_date: date,
     invoice_type: str,
-    ttxly: int,
+    endpoint_kind: str,
+    ttxly: Optional[int],
     temp_dir: str,
+    flow_code: Optional[str] = None,
 ) -> Optional[str]:
     """Download a single Excel file for specific parameters."""
     
@@ -160,17 +176,25 @@ async def _download_single_excel_file(
     end_date_str = end_date.strftime("%d/%m/%Y")
     
     # Build search parameters
-    search_params = f"tdlap=ge={start_date_str}T00:00:00;tdlap=le={end_date_str}T23:59:59;ttxly=={ttxly}"
+    base_search = f"tdlap=ge={start_date_str}T00:00:00;tdlap=le={end_date_str}T23:59:59"
+    if invoice_type == "purchase" and ttxly is not None:
+        search_params = f"{base_search};ttxly=={ttxly}"
+    else:
+        search_params = base_search
+
+    # Determine export URL based on invoice type and endpoint
+    # Use "export-excel-sold" for purchase and "export-excel" for sold, mirroring existing behavior
+    path_suffix = "export-excel-sold" if invoice_type == "purchase" else "export-excel"
+    export_url = f"https://hoadondientu.gdt.gov.vn:30000/{endpoint_kind}/invoices/{path_suffix}"
+    # Some endpoints require a type query param for purchase
+    type_query = f"&type={invoice_type}" if invoice_type == "purchase" else ""
+    full_url = (
+        f"{export_url}?sort=tdlap:desc,khmshdon:asc,shdon:desc&search={search_params}{type_query}"
+    )
     
-    # Determine export URL based on invoice type
-    if invoice_type == "purchase":
-        export_url = "https://hoadondientu.gdt.gov.vn:30000/query/invoices/export-excel-sold"
-        full_url = f"{export_url}?sort=tdlap:desc,khmshdon:asc,shdon:desc&search={search_params}&type={invoice_type}"
-    else:  # sold
-        export_url = "https://hoadondientu.gdt.gov.vn:30000/sco-query/invoices/export-excel"
-        full_url = f"{export_url}?sort=tdlap:desc,khmshdon:asc,shdon:desc&search={search_params}"
-    
-    activity.logger.info(f"🔄 Downloading Excel: {invoice_type} ttxly={ttxly}")
+    ttxly_part = f" ttxly={ttxly}" if ttxly is not None else ""
+    flow_part = f" flow={flow_code}" if flow_code else ""
+    activity.logger.info(f"🔄 Downloading Excel:{flow_part} {invoice_type} from {endpoint_kind}{ttxly_part}")
     
     # Build headers
     headers = _build_request_headers(session)
@@ -206,7 +230,9 @@ async def _download_single_excel_file(
                     
                     # Generate filename
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"gdt_export_{invoice_type}_ttxly{ttxly}_{timestamp}.xlsx"
+                    ttxly_segment = f"_ttxly{ttxly}" if ttxly is not None else ""
+                    flow_segment = f"{flow_code}_" if flow_code else ""
+                    filename = f"gdt_export_{flow_segment}{invoice_type}_{endpoint_kind}{ttxly_segment}_{timestamp}.xlsx"
                     file_path = os.path.join(temp_dir, filename)
                     
                     # Save Excel file
@@ -315,20 +341,17 @@ async def _parse_excel_files_to_invoices(
             
             # Determine flow type from filename
             filename = os.path.basename(file_path).lower()
-            if 'purchase' in filename:
-                if 'mua_vao_dien_tu' in flows:
-                    flow_type = 'mua_vao_dien_tu'
-                elif 'mua_vao_may_tinh_tien' in flows:
-                    flow_type = 'mua_vao_may_tinh_tien'
-                else:
-                    flow_type = 'mua_vao_dien_tu'  # Default
-            else:  # sold
-                if 'ban_ra_dien_tu' in flows:
-                    flow_type = 'ban_ra_dien_tu'
-                elif 'ban_ra_may_tinh_tien' in flows:
-                    flow_type = 'ban_ra_may_tinh_tien'
-                else:
-                    flow_type = 'ban_ra_dien_tu'  # Default
+            # Derive flow type and endpoint from filename segments we wrote earlier
+            # example: gdt_export_ban_ra_may_tinh_tien_sold_sco-query_ttxly5_20250101_120000.xlsx
+            flow_type = 'ban_ra_dien_tu'  # default fallback
+            if 'mua_vao_may_tinh_tien' in filename:
+                flow_type = 'mua_vao_may_tinh_tien'
+            elif 'mua_vao_dien_tu' in filename:
+                flow_type = 'mua_vao_dien_tu'
+            elif 'ban_ra_may_tinh_tien' in filename:
+                flow_type = 'ban_ra_may_tinh_tien'
+            elif 'ban_ra_dien_tu' in filename:
+                flow_type = 'ban_ra_dien_tu'
             
             # Convert records to GdtInvoice objects
             file_invoices = []
@@ -358,6 +381,9 @@ async def _parse_excel_files_to_invoices(
                     except Exception:
                         invoice_date = datetime.now().strftime("%Y-%m-%d")
                     
+                    # Determine endpoint kind using filename for reliability
+                    endpoint_kind = 'sco-query' if 'sco-query' in filename else 'query'
+
                     # Create GdtInvoice
                     invoice = GdtInvoice(
                         invoice_id=str(cleaned_record.get('stt', '')),
@@ -375,6 +401,7 @@ async def _parse_excel_files_to_invoices(
                             "buyer_tax_code": cleaned_record.get('mst_nguoi_mua') or '',  # Don't convert None to "None"
                             "status": str(cleaned_record.get('trang_thai_hoa_don', '')),
                             "flow_type": flow_type,
+                            "endpoint_kind": endpoint_kind,
                             "source": "excel_discovery",
                             "excel_file": os.path.basename(file_path),
                         },

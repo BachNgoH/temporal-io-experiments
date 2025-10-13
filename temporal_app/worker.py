@@ -11,7 +11,17 @@ from temporalio.client import Client, TLSConfig
 from temporalio.worker import Worker
 
 from app.config import settings
-from temporal_app.activities import discover_invoices, discover_invoices_excel, fetch_invoice, login_to_gdt
+from temporal_app.activities import (
+    discover_invoices,
+    discover_invoices_excel,
+    fetch_invoice,
+    login_to_gdt,
+    emit_workflow_started,
+    emit_workflow_completed,
+    emit_discovery_event,
+    emit_fetch_event,
+    emit_fetch_batch_event,
+)
 from temporal_app.workflows import GdtInvoiceImportWorkflow
 
 # Setup logging
@@ -73,6 +83,11 @@ class TemporalWorker:
                 discover_invoices,
                 discover_invoices_excel,
                 fetch_invoice,
+                emit_workflow_started,
+                emit_workflow_completed,
+                emit_discovery_event,
+                emit_fetch_event,
+                emit_fetch_batch_event,
                 # Add future activities here
             ],
             # Concurrency settings (different for base vs burst)

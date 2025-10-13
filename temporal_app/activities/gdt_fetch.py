@@ -111,22 +111,22 @@ async def fetch_invoice(
             error="Missing required invoice parameters",
         )
 
-    # Determine detail URL based on invoice type (electronic vs cash register)
+    # Determine detail URL using endpoint_kind passed from discovery (preferred)
+    endpoint_kind = invoice.metadata.get("endpoint_kind")
     flow_type = invoice.metadata.get("flow_type", "")
     khmshdon = invoice.metadata.get("khmshdon", "1")
-    
-    # Use SCO endpoint for cash register invoices (may_tinh_tien) or specific khmshdon values
-    use_sco_endpoint = (
-        "may_tinh_tien" in flow_type or 
-        khmshdon in ["2", "3", "4"]  # Common SCO khmshdon values
-    )
-    
-    if use_sco_endpoint:
-        detail_url = GDT_DETAIL_SCO_URL  # Cash register (SCO)
-        activity.logger.info(f"🏪 Using SCO endpoint for invoice: flow_type={flow_type}, khmshdon={khmshdon}")
+
+    if endpoint_kind in ("sco-query", "query"):
+        detail_url = GDT_DETAIL_SCO_URL if endpoint_kind == "sco-query" else GDT_DETAIL_URL
+        activity.logger.info(f"🔀 Using endpoint from discovery: {endpoint_kind} (flow_type={flow_type}, khmshdon={khmshdon})")
     else:
-        detail_url = GDT_DETAIL_URL  # Electronic
-        activity.logger.info(f"💻 Using electronic endpoint for invoice: flow_type={flow_type}, khmshdon={khmshdon}")
+        # Fallback to heuristic for backwards compatibility
+        use_sco_endpoint = (
+            "may_tinh_tien" in flow_type or 
+            khmshdon in ["2", "3", "4"]
+        )
+        detail_url = GDT_DETAIL_SCO_URL if use_sco_endpoint else GDT_DETAIL_URL
+        activity.logger.info(f"🔁 Fallback endpoint selection: {'sco-query' if use_sco_endpoint else 'query'} (flow_type={flow_type}, khmshdon={khmshdon})")
 
     # Build query parameters
     params = {
@@ -176,31 +176,28 @@ async def fetch_invoice(
                 try:
                     # Check if response has content
                     if not response.content:
-                        activity.logger.error(f"Empty response content for invoice {invoice.invoice_id}")
-                        activity.logger.error(f"Request URL: {full_url}")
-                        activity.logger.error(f"Response status: {response.status_code}")
-                        activity.logger.error(f"Response headers: {dict(response.headers)}")
+                        activity.logger.error(f"Empty response content for invoice {invoice.invoice_id}, Request URL: {full_url}, Response status: {response.status_code}")
                         raise Exception(f"Empty response content from detail API for invoice {invoice.invoice_id}")
                     
                     # Try to parse JSON
                     invoice_detail = response.json()
                     
                     if invoice_detail:
-                        # Extract line items from hdhhdvu field
+                        # Extract line items from hdhhdvu field (count only for compactness)
                         line_items = invoice_detail.get("hdhhdvu", [])
                         activity.logger.info(
                             f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
                         )
 
+                        # Compact payload to reduce workflow history size
                         return InvoiceFetchResult(
                             invoice_id=invoice.invoice_id,
                             success=True,
                             data={
                                 "invoice_id": invoice.invoice_id,
                                 "invoice_number": invoice.invoice_number,
-                                "invoice_detail": invoice_detail,  # Full JSON response
-                                "line_items": line_items,  # Invoice line items (hdhhdvu)
                                 "metadata": invoice.metadata,
+                                "line_items_count": len(line_items),
                             },
                         )
                     else:

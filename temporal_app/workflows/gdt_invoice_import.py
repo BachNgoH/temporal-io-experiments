@@ -9,8 +9,27 @@ from temporalio.common import RetryPolicy
 
 # Import activities
 with workflow.unsafe.imports_passed_through():
-    from temporal_app.activities import discover_invoices, discover_invoices_excel, fetch_invoice, login_to_gdt
-    from temporal_app.models import GdtInvoice, GdtLoginRequest, GdtSession, InvoiceFetchResult
+    from temporal_app.activities import (
+        discover_invoices,
+        discover_invoices_excel,
+        fetch_invoice,
+        login_to_gdt,
+        emit_workflow_started,
+        emit_workflow_completed,
+        emit_discovery_event,
+        emit_fetch_event,
+    )
+    from temporal_app.models import (
+        GdtInvoice,
+        GdtLoginRequest,
+        GdtSession,
+        InvoiceFetchResult,
+        SummaryV1,
+        WorkflowStartEventV1,
+        WorkflowEndEventV1,
+        DiscoveryEventV1,
+        FetchEventV1,
+    )
 
 
 @dataclass
@@ -18,7 +37,7 @@ class BatchConfig:
     """Configuration for batch processing with adaptive sizing."""
     batch_size: int = 8
     min_batch_size: int = 3
-    max_batch_size: int = 5
+    max_batch_size: int = 10
     delay: float = 1.0
     base_delay: float = 1.0
     processing_mode: str = "sequential"  # "parallel" or "sequential"
@@ -105,6 +124,7 @@ class GdtInvoiceImportWorkflow:
         self.invoices: list[GdtInvoice] = []
         self.results: list[InvoiceFetchResult] = []
         self.processing_mode: str = "sequential"  # Default to parallel
+        self.company_id: str = ""
 
         # Progress tracking
         self.total_invoices = 0
@@ -131,6 +151,37 @@ class GdtInvoiceImportWorkflow:
         self.processing_mode = params.get("processing_mode", "sequential")
         workflow.logger.info(f"Processing mode: {self.processing_mode}")
 
+        # Store company_id for events
+        self.company_id = params.get("company_id", "")
+
+        # Prepare flows for event payloads
+        flows_param = params.get(
+            "flows",
+            [
+                "ban_ra_dien_tu",
+                "ban_ra_may_tinh_tien",
+                "mua_vao_dien_tu",
+                "mua_vao_may_tinh_tien",
+            ],
+        )
+        event_flows = [f.value if hasattr(f, "value") else f for f in flows_param]
+
+        # Emit workflow START event
+        run_ref = f"{self.company_id}:{workflow.info().run_id}"
+        await workflow.execute_activity(
+            emit_workflow_started,
+            WorkflowStartEventV1(
+                workflow_id=workflow.info().workflow_id,
+                run_id=workflow.info().run_id,
+                company_id=self.company_id,
+                date_range_start=params["date_range_start"],
+                date_range_end=params["date_range_end"],
+                flows=event_flows,
+                run_ref=run_ref,
+            ),
+            start_to_close_timeout=timedelta(seconds=30),
+        )
+
         try:
             # Step 1: Login to GDT portal
             self.session = await self._login(params)
@@ -144,23 +195,68 @@ class GdtInvoiceImportWorkflow:
             # Step 3: Fetch all invoices in parallel (with concurrency limit)
             await self._fetch_all_invoices()
 
-            # Step 4: Return result
+            # Step 4: Emit END event and return compact result
+            success_rate = (
+                round(self.completed_invoices / self.total_invoices * 100, 2)
+                if self.total_invoices > 0
+                else 0.0
+            )
+            summary = SummaryV1(
+                total_invoices=self.total_invoices,
+                completed_invoices=self.completed_invoices,
+                failed_invoices=self.failed_invoices,
+                success_rate=success_rate,
+            )
+            result_ref = f"wf:{workflow.info().workflow_id}:{workflow.info().run_id}"
+
+            await workflow.execute_activity(
+                emit_workflow_completed,
+                WorkflowEndEventV1(
+                    workflow_id=workflow.info().workflow_id,
+                    run_id=workflow.info().run_id,
+                    company_id=self.company_id,
+                    status="completed",
+                    summary=summary,
+                    result_ref=result_ref,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
+
             return {
                 "status": "completed",
                 "company_id": params["company_id"],
                 "total_invoices": self.total_invoices,
                 "completed_invoices": self.completed_invoices,
                 "failed_invoices": self.failed_invoices,
-                "success_rate": (
-                    round(self.completed_invoices / self.total_invoices * 100, 2)
-                    if self.total_invoices > 0
-                    else 0.0
-                ),
-                "invoices": [r.data for r in self.results if r.success],
+                "success_rate": success_rate,
+                "result_ref": result_ref,
             }
 
         except Exception as e:
             workflow.logger.error(f"Workflow failed: {str(e)}")
+            success_rate = (
+                round(self.completed_invoices / (self.total_invoices or 1) * 100, 2)
+                if self.total_invoices > 0
+                else 0.0
+            )
+            summary = SummaryV1(
+                total_invoices=self.total_invoices,
+                completed_invoices=self.completed_invoices,
+                failed_invoices=self.failed_invoices,
+                success_rate=success_rate,
+            )
+            await workflow.execute_activity(
+                emit_workflow_completed,
+                WorkflowEndEventV1(
+                    workflow_id=workflow.info().workflow_id,
+                    run_id=workflow.info().run_id,
+                    company_id=self.company_id,
+                    status="failed",
+                    summary=summary,
+                    result_ref=None,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
             return {
                 "status": "failed",
                 "error": str(e),
@@ -216,6 +312,18 @@ class GdtInvoiceImportWorkflow:
         workflow.logger.info(f"🔍 Discovery method: {discovery_config.method}")
         workflow.logger.info(f"🔄 Excel fallback enabled: {discovery_config.excel_fallback}")
 
+        # Emit discovery START for primary method
+        await workflow.execute_activity(
+            emit_discovery_event,
+            DiscoveryEventV1(
+                phase="start",
+                company_id=params["company_id"],
+                method=discovery_config.method,
+                flows=flow_strings,
+            ),
+            start_to_close_timeout=timedelta(seconds=30),
+        )
+
         # Try primary discovery method
         try:
             if discovery_config.method == "api":
@@ -225,25 +333,101 @@ class GdtInvoiceImportWorkflow:
                 
             if invoices:
                 workflow.logger.info(f"✅ {discovery_config.method.upper()} discovery successful: {len(invoices)} invoices")
+                await workflow.execute_activity(
+                    emit_discovery_event,
+                    DiscoveryEventV1(
+                        phase="end",
+                        company_id=params["company_id"],
+                        method=discovery_config.method,
+                        flows=flow_strings,
+                        invoice_count=len(invoices),
+                    ),
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
                 return invoices
             else:
                 workflow.logger.warning(f"⚠️ {discovery_config.method.upper()} discovery returned no invoices")
+                await workflow.execute_activity(
+                    emit_discovery_event,
+                    DiscoveryEventV1(
+                        phase="end",
+                        company_id=params["company_id"],
+                        method=discovery_config.method,
+                        flows=flow_strings,
+                        invoice_count=0,
+                    ),
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
                 
         except Exception as e:
             workflow.logger.error(f"❌ {discovery_config.method.upper()} discovery failed: {str(e)}")
+            await workflow.execute_activity(
+                emit_discovery_event,
+                DiscoveryEventV1(
+                    phase="end",
+                    company_id=params["company_id"],
+                    method=discovery_config.method,
+                    flows=flow_strings,
+                    invoice_count=0,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
         
         # Try fallback method if enabled and primary failed
         if discovery_config.excel_fallback and discovery_config.method == "api":
             workflow.logger.info("🔄 Attempting Excel fallback discovery...")
+            await workflow.execute_activity(
+                emit_discovery_event,
+                DiscoveryEventV1(
+                    phase="start",
+                    company_id=params["company_id"],
+                    method="excel",
+                    flows=flow_strings,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
             try:
                 invoices = await self._discover_via_excel(params, flow_strings)
                 if invoices:
                     workflow.logger.info(f"✅ Excel fallback successful: {len(invoices)} invoices")
+                    await workflow.execute_activity(
+                        emit_discovery_event,
+                        DiscoveryEventV1(
+                            phase="end",
+                            company_id=params["company_id"],
+                            method="excel",
+                            flows=flow_strings,
+                            invoice_count=len(invoices),
+                        ),
+                        start_to_close_timeout=timedelta(seconds=30),
+                    )
                     return invoices
                 else:
                     workflow.logger.warning("⚠️ Excel fallback returned no invoices")
+                    await workflow.execute_activity(
+                        emit_discovery_event,
+                        DiscoveryEventV1(
+                            phase="end",
+                            company_id=params["company_id"],
+                            method="excel",
+                            flows=flow_strings,
+                            invoice_count=0,
+                        ),
+                        start_to_close_timeout=timedelta(seconds=30),
+                    )
             except Exception as e:
                 workflow.logger.error(f"❌ Excel fallback failed: {str(e)}")
+                await workflow.execute_activity(
+                    emit_discovery_event,
+                    DiscoveryEventV1(
+                        phase="end",
+                        company_id=params["company_id"],
+                        method="excel",
+                        flows=flow_strings,
+                        invoice_count=0,
+                    ),
+                    start_to_close_timeout=timedelta(seconds=30),
+                )
         
         # If both methods failed or returned no invoices
         workflow.logger.error("❌ All discovery methods failed or returned no invoices")
@@ -367,6 +551,18 @@ class GdtInvoiceImportWorkflow:
             f"{batch_stats.successes} success, {batch_stats.failures} failed "
             f"(429 errors: {batch_stats.rate_limit_errors})"
         )
+
+        # Emit batch summary event (single event per batch)
+        try:
+            successes = batch_stats.successes
+            failures = batch_stats.failures
+            await workflow.execute_activity(
+                emit_fetch_batch_event,
+                args=[batch_num, total_batches, successes, failures],
+                start_to_close_timeout=timedelta(seconds=30),
+            )
+        except Exception as emit_err:
+            workflow.logger.warning(f"Emit batch summary failed for batch {batch_num}: {emit_err}")
         
         return batch_results
 
@@ -497,6 +693,20 @@ class GdtInvoiceImportWorkflow:
         - Failed invoices can be retried in subsequent batches
         """
         try:
+            # Emit fetch START
+            await workflow.execute_activity(
+                emit_fetch_event,
+                FetchEventV1(
+                    phase="start",
+                    company_id=self.company_id,
+                    invoice_id=invoice.invoice_id,
+                    flow_type=invoice.metadata.get("flow_type") if hasattr(invoice, "metadata") else None,
+                    endpoint_kind=invoice.metadata.get("endpoint_kind") if hasattr(invoice, "metadata") else None,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
+
+            # Perform fetch
             result = await workflow.execute_activity(
                 fetch_invoice,
                 args=[invoice, self.session],
@@ -508,9 +718,39 @@ class GdtInvoiceImportWorkflow:
                     backoff_coefficient=2.0,  # Standard backoff
                 ),
             )
+
+            # Emit fetch END success
+            await workflow.execute_activity(
+                emit_fetch_event,
+                FetchEventV1(
+                    phase="end",
+                    company_id=self.company_id,
+                    invoice_id=invoice.invoice_id,
+                    flow_type=invoice.metadata.get("flow_type") if hasattr(invoice, "metadata") else None,
+                    endpoint_kind=invoice.metadata.get("endpoint_kind") if hasattr(invoice, "metadata") else None,
+                    success=True,
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
+
             return result
 
         except Exception as e:
+            # Emit fetch END failure
+            await workflow.execute_activity(
+                emit_fetch_event,
+                FetchEventV1(
+                    phase="end",
+                    company_id=self.company_id,
+                    invoice_id=invoice.invoice_id,
+                    flow_type=invoice.metadata.get("flow_type") if hasattr(invoice, "metadata") else None,
+                    endpoint_kind=invoice.metadata.get("endpoint_kind") if hasattr(invoice, "metadata") else None,
+                    success=False,
+                    error=str(e),
+                ),
+                start_to_close_timeout=timedelta(seconds=30),
+            )
+
             workflow.logger.error(f"Failed to fetch invoice {invoice.invoice_id}: {str(e)}")
             return InvoiceFetchResult(
                 invoice_id=invoice.invoice_id,

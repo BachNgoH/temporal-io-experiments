@@ -4,6 +4,10 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi import Request
+import os
+import json
+from datetime import datetime
 from temporalio.client import Client
 
 from app.config import settings
@@ -221,6 +225,48 @@ async def cancel_task(workflow_id: str) -> dict[str, str]:
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to cancel task: {str(e)}")
+
+
+# ============================================================================
+# Internal webhook receiver (mock) - receives event posts from worker
+# ============================================================================
+
+
+@app.post("/internal/webhooks")
+async def receive_internal_webhook(request: Request) -> dict[str, str]:
+    """Mock endpoint to receive internal event webhooks from worker.
+
+    Accepts arbitrary JSON. Logs and returns ack. Replace later with real handler.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        body = {"error": "invalid json"}
+
+    print("📨 Internal webhook received:")
+    print(body)
+
+    # Persist event to local JSON file under app/data/events/{run_id}
+    try:
+        run_id = body.get("run_id") or "unknown"
+        event_name = body.get("event_name", "event")
+        event_id = body.get("event_id", "no-id")
+        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+
+        base_dir = os.path.join(os.path.dirname(__file__), "data", "events", run_id)
+        os.makedirs(base_dir, exist_ok=True)
+
+        filename = f"{timestamp}_{event_name}_{event_id}.json"
+        filepath = os.path.join(base_dir, filename)
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(body, f, ensure_ascii=False, indent=2)
+
+        print(f"💾 Saved event to {filepath}")
+    except Exception as e:
+        print(f"⚠️ Failed to persist webhook event: {e}")
+
+    return {"status": "ok"}
 
 
 # ============================================================================
