@@ -30,16 +30,19 @@ from dateutil.relativedelta import relativedelta
 API_BASE_URL = "http://localhost:8000"
 
 # Real GDT credentials
-# GDT_USERNAME = "0317530616"
-# GDT_PASSWORD = "DlzGy00@"
+GDT_USERNAME = "0317530616"
+GDT_PASSWORD = "DlzGy00@"
 
-GDT_USERNAME = "8026037048"
-GDT_PASSWORD = "Ngo8@vvt"
+# GDT_USERNAME = "8026037048"
+# GDT_PASSWORD = "Ngo8@vvt"
 
 
 # Company info (based on username which is tax code)
-COMPANY_ID = "Ngo8Vovantan"
-COMPANY_NAME = "Ngo8Vovantan"
+# COMPANY_ID = "Ngo8Vovantan"
+# COMPANY_NAME = "Ngo8Vovantan"
+COMPANY_NAME = "PATEDELI"
+COMPANY_ID = "PATEDELI"
+
 
 # All available flows
 ALL_FLOWS = [

@@ -32,9 +32,15 @@ def emit_on_complete(
             try:
                 payload = payload_from_result(result, *args, **kwargs)
                 url = os.getenv("EVENT_WEBHOOK_URL", "http://host.docker.internal:8000/internal/webhooks")
+                
+                # Get workflow run_id from activity info
+                run_id = activity.info().workflow_run_id
+                
                 envelope = {
                     "event_id": activity.info().activity_id,
                     "event_name": event_name,
+                    "run_id": run_id,
+                    "workflow_id": activity.info().workflow_id,
                     "payload": payload,
                 }
 

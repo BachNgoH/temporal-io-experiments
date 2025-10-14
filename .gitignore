@@ -58,3 +58,4 @@ docker-compose.override.yml
 .uv/
 uv.lock
 credentials/*
+*/data/*

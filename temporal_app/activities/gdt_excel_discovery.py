@@ -33,6 +33,8 @@ class GDTExcelDiscoveryError(Exception):
         "date_range_end": date_range_end,
         "flows": flows,
         "invoice_count": len(invoices or []),
+        "run_id": activity.info().workflow_run_id,  # Add run_id for file management
+        "workflow_id": activity.info().workflow_id,  # Add workflow_id for reference
     },
     compact_from_result=lambda invoices, *args, **kwargs: invoices,
 )

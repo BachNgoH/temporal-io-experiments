@@ -43,8 +43,8 @@ class BatchConfig:
             self.batch_size = 1
             self.min_batch_size = 1
             self.max_batch_size = 1
-            self.base_delay = 2.0  # Longer delay for sequential
-            self.delay = 2.0
+            self.base_delay = 3.0  # Longer delay for sequential
+            self.delay = 3.0
     
     def reduce_batch_size(self) -> None:
         """Reduce batch size when hitting rate limits."""
@@ -66,8 +66,8 @@ class BatchConfig:
 @dataclass
 class RetryConfig:
     """Configuration for retry processing."""
-    batch_size: int = 3
-    delay: float = 3.0
+    batch_size: int = 2  # Smaller batches for retries
+    delay: float = 5.0  # Longer delay between retry batches
 
 
 @dataclass
@@ -315,13 +315,13 @@ class GdtInvoiceImportWorkflow:
                 params["date_range_end"],
                 flow_strings,
             ],
-            start_to_close_timeout=timedelta(minutes=20),
-            heartbeat_timeout=timedelta(minutes=3),
+            start_to_close_timeout=timedelta(minutes=30),  # Longer timeout for extended retries
+            heartbeat_timeout=timedelta(minutes=5),
             retry_policy=RetryPolicy(
-                initial_interval=timedelta(seconds=5),
-                maximum_interval=timedelta(minutes=5),
-                maximum_attempts=8,
-                backoff_coefficient=1.8,
+                initial_interval=timedelta(seconds=15),  # Longer initial delay
+                maximum_interval=timedelta(minutes=10),  # Longer max interval
+                maximum_attempts=15,  # More attempts for discovery
+                backoff_coefficient=2.0,  # Higher backoff coefficient
             ),
         )
         
@@ -340,13 +340,13 @@ class GdtInvoiceImportWorkflow:
                 params["date_range_end"],
                 flow_strings,
             ],
-            start_to_close_timeout=timedelta(minutes=30),  # Longer timeout for Excel downloads
-            heartbeat_timeout=timedelta(minutes=5),
+            start_to_close_timeout=timedelta(minutes=45),  # Longer timeout for Excel downloads
+            heartbeat_timeout=timedelta(minutes=8),
             retry_policy=RetryPolicy(
-                initial_interval=timedelta(seconds=10),
-                maximum_interval=timedelta(minutes=10),
-                maximum_attempts=5,
-                backoff_coefficient=2.0,
+                initial_interval=timedelta(seconds=20),  # Longer initial delay
+                maximum_interval=timedelta(minutes=15),  # Longer max interval
+                maximum_attempts=12,  # More attempts for Excel discovery
+                backoff_coefficient=2.5,  # Higher backoff coefficient
             ),
         )
 
@@ -538,31 +538,33 @@ class GdtInvoiceImportWorkflow:
 
     async def _fetch_single_invoice(self, invoice: GdtInvoice) -> InvoiceFetchResult:
         """
-        Fetch single invoice with conservative retry logic for batch processing.
+        Fetch single invoice with extended retry logic for XML downloads.
 
-        Conservative Retry Policy for Batch Processing:
-        - initial_interval=5s: Longer initial delay to avoid retry storms
-        - maximum_interval=30s: Shorter max wait to fail fast in batches
-        - maximum_attempts=5: Fewer attempts to avoid blocking batch
-        - backoff_coefficient=2.0: Standard exponential backoff
+        Extended Retry Policy for XML Downloads:
+        - initial_interval=10s: Longer initial delay to avoid retry storms
+        - maximum_interval=2min: Longer max wait for XML downloads
+        - maximum_attempts=10: More attempts for XML downloads
+        - backoff_coefficient=2.5: Higher backoff coefficient for aggressive delays
+        - timeout=30min: Extended timeout to accommodate all retry attempts
 
-        Why this works better with batch processing:
+        Why this works better with XML downloads:
         - Longer initial delay prevents immediate retry storms
-        - Fewer attempts means failed invoices don't block the batch
-        - Shorter max wait allows batch to complete faster
-        - Failed invoices can be retried in subsequent batches
+        - More attempts accommodate XML download failures
+        - Longer max wait allows for GCS upload time
+        - Higher backoff coefficient provides more aggressive delays
+        - Extended timeout ensures all retry attempts can complete
         """
         try:
             # Perform fetch (activity will POST full JSON via decorator)
             result = await workflow.execute_activity(
                 fetch_invoice,
                 args=[invoice, self.session],
-                start_to_close_timeout=timedelta(minutes=5),  # Shorter timeout for batch processing
+                start_to_close_timeout=timedelta(minutes=30),  # Extended timeout for XML downloads
                 retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=5),  # Longer initial delay
-                    maximum_interval=timedelta(seconds=30),  # Shorter max wait
-                    maximum_attempts=5,  # Fewer attempts
-                    backoff_coefficient=2.0,  # Standard backoff
+                    initial_interval=timedelta(seconds=10),  # Longer initial delay
+                    maximum_interval=timedelta(minutes=2),  # Longer max wait
+                    maximum_attempts=10,  # More attempts for XML downloads
+                    backoff_coefficient=2.5,  # Higher backoff coefficient
                 ),
             )
 

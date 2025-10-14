@@ -21,7 +21,7 @@ A production-ready, extensible task orchestration system using Temporal.io with 
 │  ├── PostgreSQL (Temporal state)                             │
 │  ├── FastAPI (stateless API)                                 │
 │  └── 2 Base Workers (always running)                         │
-│  Cost: ~$50/mo                                                │
+│  Cost: ~$50/mo                                               │
 └──────────────────────────────────────────────────────────────┘
                     ↓ (when queue is busy)
 ┌──────────────────────────────────────────────────────────────┐
