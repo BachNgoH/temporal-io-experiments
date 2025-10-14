@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +11,7 @@ class TaskType(str, Enum):
     """Supported task types - easily extensible."""
 
     GDT_INVOICE_IMPORT = "gdt_invoice_import"
+    ENTITY_LOOKUP = "entity_lookup"
     # Future task types:
     # GDT_TAX_REPORT_SYNC = "gdt_tax_report_sync"
     # GDT_COMPLIANCE_CHECK = "gdt_compliance_check"
@@ -147,3 +148,39 @@ class DataPipelineParams(BaseModel):
     source_config: dict[str, Any]
     transform_steps: list[str]
     destination_config: dict[str, Any]
+
+
+# ============================================================================
+# Entity Lookup Models
+# ============================================================================
+
+
+class EntityLookupParams(BaseModel):
+    """Parameters for entity lookup task."""
+
+    search_term: str = Field(..., description="Term to search for (tax code or company name)")
+    search_type: str = Field(default="tax_code", description="Search type: 'tax_code' or 'company_name'")
+    list_mode: bool = Field(default=False, description="Return list of companies if True")
+
+
+class CompanyInfo(BaseModel):
+    """Company information."""
+
+    tax_code: Optional[str] = None
+    company_name: Optional[str] = None
+    address: Optional[str] = None
+    legal_representative: Optional[str] = None
+    business_activities: Optional[list[str]] = None
+    registration_date: Optional[str] = None
+    status: Optional[str] = None
+
+
+class EntityLookupResult(BaseModel):
+    """Result of entity lookup task."""
+
+    success: bool
+    message: str
+    data: Optional[CompanyInfo] = None
+    companies: Optional[list[CompanyInfo]] = None
+    processing_time: float = 0.0
+    errors: list[str] = []

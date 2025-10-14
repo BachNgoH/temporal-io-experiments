@@ -27,7 +27,7 @@ from dateutil.relativedelta import relativedelta
 # Configuration
 # ============================================================================
 
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://35.185.186.161:8000"
 
 # Real GDT credentials
 GDT_USERNAME = "0317530616"

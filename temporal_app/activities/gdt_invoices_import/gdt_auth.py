@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from temporalio import activity
 from temporalio.exceptions import ApplicationError
 from google import genai
+from app.config import settings
 
 from temporal_app.models import GdtLoginRequest, GdtSession
 
@@ -227,11 +228,11 @@ async def _solve_captcha_with_gemini(svg_content: str, activity) -> str | None:
         )
         activity.logger.info(f"✅ PNG conversion successful ({len(png_data)} bytes)")
 
-        # Initialize Gemini client
-        project_id = os.getenv("GCP_PROJECT_ID", "finiziapp")
-        region = os.getenv("GCP_REGION", "asia-southeast1")
-        model_name = os.getenv("CAPTCHA_MODEL", "gemini-2.5-flash")
-        creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/app/credentials/vertex-ai-sa-key.json")
+        # Initialize Gemini client from settings
+        project_id = settings.GCP_PROJECT_ID or "finiziapp"
+        region = settings.GCP_REGION
+        model_name = settings.CAPTCHA_MODEL
+        creds_path = settings.GOOGLE_APPLICATION_CREDENTIALS
 
         activity.logger.info(f"🤖 Initializing Gemini client:")
         activity.logger.info(f"   - Model: {model_name}")
@@ -239,12 +240,15 @@ async def _solve_captcha_with_gemini(svg_content: str, activity) -> str | None:
         activity.logger.info(f"   - Region: {region}")
         activity.logger.info(f"   - Credentials: {creds_path}")
 
-        # Configure client with service account
-        client = genai.Client(
-            vertexai=True,
-            project=project_id,
-            location=region,
-        )
+        # Configure client using Vertex AI or direct Gemini API based on settings
+        if settings.CAPTCHA_USE_VERTEX:
+            client = genai.Client(
+                vertexai=True,
+                project=project_id,
+                location=region,
+            )
+        else:
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
         activity.logger.info("✅ Gemini client initialized successfully")
 

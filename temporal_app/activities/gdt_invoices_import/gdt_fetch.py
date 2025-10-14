@@ -513,13 +513,39 @@ async def fetch_invoice(
                             f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
                         )
 
-                        # XML fetching temporarily disabled for performance/rate-limit hardening
+                        # Download XML file and upload to GCS
                         xml_gcs_url = None
-                        xml_download_status = "disabled"
+                        xml_download_status = "not_attempted"
+                        
+                        # try:
+                        #     activity.logger.info(f"📄 Starting XML download for invoice {invoice.invoice_id}")
+                            
+                        #     # Download XML with retry logic
+                        #     xml_file_path = await _download_invoice_xml_with_retry(
+                        #         invoice, session, endpoint_kind
+                        #     )
+                            
+                        #     if xml_file_path:
+                        #         # Upload to GCS
+                        #         xml_gcs_url = await _upload_xml_to_gcs(xml_file_path, invoice, session)
+                                
+                        #         if xml_gcs_url:
+                        #             xml_download_status = "success"
+                        #             activity.logger.success(f"✅ XML successfully downloaded and uploaded to GCS: {xml_gcs_url}")
+                        #         else:
+                        #             xml_download_status = "failed"
+                        #             activity.logger.warning(f"⚠️ XML downloaded but GCS upload failed for invoice {invoice.invoice_id}")
+                        #     else:
+                        #         xml_download_status = "failed"
+                        #         activity.logger.warning(f"⚠️ XML download failed for invoice {invoice.invoice_id}")
+                                
+                        # except Exception as xml_error:
+                        #     xml_download_status = "failed"
+                        #     activity.logger.error(f"❌ XML download/upload error for invoice {invoice.invoice_id}: {xml_error}")
 
                         # Return full data to decorator for webhook; decorator returns compact to workflow
                         return {
-                            "invoice_detail": invoice_detail,
+                            "invoice_detail": invoice_detail, 
                             "line_items": line_items,
                             "xml_gcs_url": xml_gcs_url,
                             "xml_download_status": xml_download_status

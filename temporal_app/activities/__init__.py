@@ -1,13 +1,29 @@
 """Temporal activities package."""
 
-from temporal_app.activities.gdt_auth import login_to_gdt
-from temporal_app.activities.gdt_discovery import discover_invoices
-from temporal_app.activities.gdt_excel_discovery import discover_invoices_excel
-from temporal_app.activities.gdt_fetch import fetch_invoice
+# Import from subfolders
+from temporal_app.activities.gdt_invoices_import import (
+    login_to_gdt,
+    discover_invoices,
+    discover_invoices_excel,
+    fetch_invoice,
+)
+from temporal_app.activities.entity_lookup import (
+    extract_from_gdt,
+    enrich_with_thuvienphapluat,
+    search_by_company_name_only,
+)
+from temporal_app.activities import hooks
 
 __all__ = [
+    # GDT Invoice Import Activities
     "login_to_gdt",
     "discover_invoices", 
     "discover_invoices_excel",
     "fetch_invoice",
+    # Entity Lookup Activities
+    "extract_from_gdt",
+    "enrich_with_thuvienphapluat",
+    "search_by_company_name_only",
+    # Hooks
+    "hooks",
 ]

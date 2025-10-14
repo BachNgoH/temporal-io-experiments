@@ -11,8 +11,12 @@ from datetime import datetime
 from temporalio.client import Client
 
 from app.config import settings
-from app.models import TaskRequest, TaskResponse, TaskStatus, TaskStatusResponse, TaskType
+from app.models import (
+    TaskRequest, TaskResponse, TaskStatus, TaskStatusResponse, TaskType,
+    GdtInvoiceImportParams, EntityLookupParams
+)
 from temporal_app.workflows.gdt_invoice_import import GdtInvoiceImportWorkflow
+from temporal_app.workflows.entity_lookup import EntityLookupWorkflow
 
 
 # Global Temporal client
@@ -96,12 +100,15 @@ async def start_task(request: TaskRequest) -> TaskResponse:
     if not temporal_client:
         raise HTTPException(status_code=503, detail="Temporal client not initialized")
 
+    # Validate and convert task parameters based on task type
+    validated_params = _validate_task_params(request.task_type, request.task_params)
+
     # Route to appropriate workflow based on task type
     workflow_class = _get_workflow_class(request.task_type)
-    workflow_id = _generate_workflow_id(request.task_type, request.task_params)
+    workflow_id = _generate_workflow_id(request.task_type, validated_params)
 
     print(f"🚀 Starting workflow: {workflow_id}")
-    print(f"📋 Task params: {request.task_params}")
+    print(f"📋 Task params: {validated_params}")
 
     try:
         # Check if workflow already exists (idempotency check)
@@ -126,7 +133,7 @@ async def start_task(request: TaskRequest) -> TaskResponse:
         print(f"🔄 Creating new workflow: {workflow_id}")
         handle = await temporal_client.start_workflow(
             workflow_class.run,
-            request.task_params,
+            validated_params,
             id=workflow_id,
             task_queue=settings.temporal_task_queue,
             # Search attributes for filtering in Temporal UI
@@ -278,6 +285,7 @@ def _get_workflow_class(task_type: TaskType) -> Any:
     """Route task type to appropriate workflow class."""
     workflow_mapping = {
         TaskType.GDT_INVOICE_IMPORT: GdtInvoiceImportWorkflow,
+        TaskType.ENTITY_LOOKUP: EntityLookupWorkflow,
         # Future task types:
         # TaskType.GDT_TAX_REPORT_SYNC: GdtTaxReportSyncWorkflow,
         # TaskType.DATA_PIPELINE: DataPipelineWorkflow,
@@ -307,11 +315,44 @@ def _generate_workflow_id(task_type: TaskType, params: dict[str, Any]) -> str:
             f"{params['date_range_end']}-"
             f"{timestamp}"
         )
+    
+    if task_type == TaskType.ENTITY_LOOKUP:
+        # Add timestamp to make workflow ID unique for concurrent requests
+        timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
+        search_term = params.get("search_term", "unknown")
+        search_type = params.get("search_type", "tax_code")
+        return (
+            f"{task_type.value}-"
+            f"{search_type}-"
+            f"{search_term}-"
+            f"{timestamp}"
+        )
 
     # Default: use task type + company_id + timestamp if available
     company_id = params.get("company_id", "unknown")
     timestamp = int(time.time() * 1000)
     return f"{task_type.value}-{company_id}-{timestamp}"
+
+
+def _validate_task_params(task_type: TaskType, task_params: dict[str, Any]) -> dict[str, Any]:
+    """Validate task parameters based on task type."""
+    try:
+        if task_type == TaskType.GDT_INVOICE_IMPORT:
+            # Validate against GdtInvoiceImportParams
+            validated = GdtInvoiceImportParams(**task_params)
+            return validated.dict()
+        elif task_type == TaskType.ENTITY_LOOKUP:
+            # Validate against EntityLookupParams
+            validated = EntityLookupParams(**task_params)
+            return validated.dict()
+        else:
+            # Return as-is for unknown task types
+            return task_params
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid task parameters for {task_type.value}: {str(e)}"
+        )
 
 
 def _extract_task_type_from_workflow_id(workflow_id: str) -> TaskType:

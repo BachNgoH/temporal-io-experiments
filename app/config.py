@@ -24,4 +24,15 @@ class Settings(BaseSettings):
     temporal_key_path: str | None = None
 
 
+    # CAPTCHA / Gemini / Vertex AI
+    # When using Vertex AI (preferred), set CAPTCHA_USE_VERTEX=true and provide GCP project/region.
+    # Otherwise, set GEMINI_API_KEY and CAPTCHA_MODEL for direct Gemini API usage.
+    CAPTCHA_USE_VERTEX: bool = True
+    GCP_PROJECT_ID: str | None = None
+    GCP_REGION: str = "asia-southeast1"
+    CAPTCHA_MODEL: str = "gemini-2.5-flash"
+    GOOGLE_APPLICATION_CREDENTIALS: str = "/app/credentials/vertex-ai-sa-key.json"
+    GEMINI_API_KEY: str | None = None
+
+
 settings = Settings()

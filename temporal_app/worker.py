@@ -16,8 +16,11 @@ from temporal_app.activities import (
     discover_invoices_excel,
     fetch_invoice,
     login_to_gdt,
+    extract_from_gdt,
+    enrich_with_thuvienphapluat,
+    search_by_company_name_only,
 )
-from temporal_app.workflows import GdtInvoiceImportWorkflow
+from temporal_app.workflows import GdtInvoiceImportWorkflow, EntityLookupWorkflow
 
 # Setup logging
 logging.basicConfig(
@@ -68,6 +71,7 @@ class TemporalWorker:
             # Register workflows
             workflows=[
                 GdtInvoiceImportWorkflow,
+                EntityLookupWorkflow,
                 # Add future workflows here:
                 # GdtTaxReportSyncWorkflow,
                 # DataPipelineWorkflow,
@@ -78,6 +82,9 @@ class TemporalWorker:
                 discover_invoices,
                 discover_invoices_excel,
                 fetch_invoice,
+                extract_from_gdt,
+                enrich_with_thuvienphapluat,
+                search_by_company_name_only,
                 # Add future activities here
             ],
             # Concurrency settings (different for base vs burst)

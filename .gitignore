@@ -59,3 +59,5 @@ docker-compose.override.yml
 uv.lock
 credentials/*
 */data/*
+.gemini/
+gha-creds-*.json

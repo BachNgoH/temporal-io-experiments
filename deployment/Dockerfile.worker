@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libxslt-dev \
     zlib1g-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -26,6 +27,9 @@ COPY credentials/ ./credentials/
 
 # Install dependencies with uv
 RUN uv pip install --system -e .
+
+# Install Playwright and browsers
+RUN uv pip install --system playwright && playwright install --with-deps chromium
 
 # Run worker
 CMD ["python", "-m", "temporal_app.worker"]
