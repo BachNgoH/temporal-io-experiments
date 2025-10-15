@@ -9,7 +9,7 @@ from typing import Any, Optional
 from temporalio import activity
 from temporal_app.activities.hooks import emit_on_complete
 
-from temporal_app.models import GdtInvoice, GdtSession
+from temporal_app.models import GdtInvoice, GdtSession, DiscoveryResult
 
 # ============================================================================
 # Configuration
@@ -26,24 +26,14 @@ class GDTExcelDiscoveryError(Exception):
 
 @activity.defn
 @emit_on_complete(
-    event_name="discovery.completed",
-    payload_from_result=lambda invoices, session, date_range_start, date_range_end, flows: {
-        "company_id": getattr(session, "company_id", ""),
-        "date_range_start": date_range_start,
-        "date_range_end": date_range_end,
-        "flows": flows,
-        "invoice_count": len(invoices or []),
-        "run_id": activity.info().workflow_run_id,  # Add run_id for file management
-        "workflow_id": activity.info().workflow_id,  # Add workflow_id for reference
-    },
-    compact_from_result=lambda invoices, *args, **kwargs: invoices,
+    event_name="invoice_discovery.completed",
 )
 async def discover_invoices_excel(
     session: GdtSession,
     date_range_start: str,
     date_range_end: str,
     flows: list[str],
-) -> list[GdtInvoice]:
+) -> DiscoveryResult:
     """
     Discover invoices using Excel export method - more reliable than API discovery.
     
@@ -85,15 +75,96 @@ async def discover_invoices_excel(
                 activity.logger.warning("⚠️ No Excel files downloaded")
                 return []
             
-            # Parse Excel files to extract invoices
-            all_invoices = await _parse_excel_files_to_invoices(excel_files, flows)
-            
-            activity.logger.info(f"✅ Excel Discovery complete: {len(all_invoices)} total invoices")
-            
+            # Parse Excel files to raw rows
+            all_rows = await _parse_excel_files_to_raw_rows(excel_files)
+
+            activity.logger.info(f"✅ Excel Discovery complete: {len(all_rows)} total rows")
+
             # Send heartbeat with progress
-            activity.heartbeat(f"Excel discovery found {len(all_invoices)} invoices from {len(excel_files)} files")
-            
-            return all_invoices
+            activity.heartbeat(f"Excel discovery found {len(all_rows)} invoices from {len(excel_files)} files")
+
+            # Convert Excel rows to GdtInvoice objects
+            invoices: list[GdtInvoice] = []
+            for row in all_rows:
+                try:
+                    # Parse date from Excel format
+                    date_raw = row.get("ngay_lap")
+                    try:
+                        if isinstance(date_raw, str) and "/" in date_raw:
+                            invoice_date = datetime.strptime(date_raw, "%d/%m/%Y").strftime("%Y-%m-%d")
+                        elif isinstance(date_raw, str) and "-" in date_raw:
+                            invoice_date = date_raw
+                        else:
+                            invoice_date = datetime.utcnow().strftime("%Y-%m-%d")
+                    except Exception:
+                        invoice_date = datetime.utcnow().strftime("%Y-%m-%d")
+
+                    # Get invoice number and ID
+                    invoice_number = str(row.get("so_hoa_don", ""))
+                    invoice_id = str(row.get("stt", "") or invoice_number)
+
+                    # Determine flow type and endpoint from filename annotation
+                    filename = str(row.get("_file", "")).lower()
+                    if "mua_vao_may_tinh_tien" in filename:
+                        flow_type = "mua_vao_may_tinh_tien"
+                    elif "mua_vao_dien_tu" in filename:
+                        flow_type = "mua_vao_dien_tu"
+                    elif "ban_ra_may_tinh_tien" in filename:
+                        flow_type = "ban_ra_may_tinh_tien"
+                    elif "ban_ra_dien_tu" in filename:
+                        flow_type = "ban_ra_dien_tu"
+                    else:
+                        flow_type = ""
+
+                    endpoint_kind = "sco-query" if "sco-query" in filename else "query"
+
+                    # Build metadata with all extra fields
+                    metadata = {
+                        "khhdon": str(row.get("ky_hieu_hoa_don", "")),
+                        "khmshdon": str(row.get("ky_hieu_mau_so", "1")),
+                        "buyer_name": str(row.get("ten_nguoi_mua", "")),
+                        "buyer_tax_code": str(row.get("mst_nguoi_mua", "")),
+                        "status": str(row.get("trang_thai_hoa_don", "")),
+                        "flow_type": flow_type,
+                        "endpoint_kind": endpoint_kind,
+                        "source": "excel_discovery",
+                        "excel_file": filename,
+                        "dia_chi_nguoi_ban": str(row.get("dia_chi_nguoi_ban", "")),
+                        "tong_tien_chua_thue": str(row.get("tong_tien_chua_thue", "0")),
+                        "tong_tien_chiet_khau_thuong_mai": str(row.get("tong_tien_chiet_khau_thuong_mai", "0")),
+                        "tong_tien_phi": str(row.get("tong_tien_phi", "0")),
+                        "don_vi_tien_te": str(row.get("don_vi_tien_te", "VND")),
+                        "ty_gia": str(row.get("ty_gia", "1")),
+                        "ket_qua_kiem_tra_hoa_don": str(row.get("ket_qua_kiem_tra_hoa_don", "")),
+                    }
+
+                    invoice = GdtInvoice(
+                        invoice_id=invoice_id,
+                        invoice_number=invoice_number,
+                        invoice_date=invoice_date,
+                        invoice_type=flow_type,
+                        amount=float(row.get("tong_tien_thanh_toan", 0) or 0),
+                        tax_amount=float(row.get("tong_tien_thue", 0) or 0),
+                        supplier_name=str(row.get("ten_nguoi_ban", "")),
+                        supplier_tax_code=str(row.get("mst_nguoi_ban", "")),
+                        metadata=metadata,
+                    )
+                    invoices.append(invoice)
+                except Exception as e:
+                    activity.logger.warning(f"Failed to parse Excel row: {str(e)}")
+                    continue
+
+            activity.logger.info(f"✅ Converted {len(invoices)} Excel rows to GdtInvoice objects")
+
+            return DiscoveryResult(
+                company_id=getattr(session, "company_id", ""),
+                date_range_start=date_range_start,
+                date_range_end=date_range_end,
+                flows=flows,
+                invoice_count=len(invoices),
+                invoices=invoices,
+                raw_invoices=all_rows,
+            )
             
     except Exception as e:
         activity.logger.error(f"❌ Excel discovery failed: {str(e)}")
@@ -293,11 +364,10 @@ async def _download_single_excel_file(
     return None
 
 
-async def _parse_excel_files_to_invoices(
+async def _parse_excel_files_to_raw_rows(
     excel_files: list[str],
-    flows: list[str],
-) -> list[GdtInvoice]:
-    """Parse Excel files and convert to GdtInvoice objects."""
+) -> list[dict[str, Any]]:
+    """Parse Excel files and return raw row dictionaries (lightly cleaned)."""
     
     try:
         import pandas as pd
@@ -305,7 +375,7 @@ async def _parse_excel_files_to_invoices(
         activity.logger.error("❌ pandas is required for Excel processing. Install with: pip install pandas openpyxl")
         raise GDTExcelDiscoveryError("pandas not available for Excel processing")
     
-    all_invoices = []
+    all_rows: list[dict[str, Any]] = []
     
     for file_path in excel_files:
         try:
@@ -353,22 +423,8 @@ async def _parse_excel_files_to_invoices(
             # Convert to records
             records = df.to_dict('records')
             
-            # Determine flow type from filename
-            filename = os.path.basename(file_path).lower()
-            # Derive flow type and endpoint from filename segments we wrote earlier
-            # example: gdt_export_ban_ra_may_tinh_tien_sold_sco-query_ttxly5_20250101_120000.xlsx
-            flow_type = 'ban_ra_dien_tu'  # default fallback
-            if 'mua_vao_may_tinh_tien' in filename:
-                flow_type = 'mua_vao_may_tinh_tien'
-            elif 'mua_vao_dien_tu' in filename:
-                flow_type = 'mua_vao_dien_tu'
-            elif 'ban_ra_may_tinh_tien' in filename:
-                flow_type = 'ban_ra_may_tinh_tien'
-            elif 'ban_ra_dien_tu' in filename:
-                flow_type = 'ban_ra_dien_tu'
-            
-            # Convert records to GdtInvoice objects
-            file_invoices = []
+            # Convert records to raw rows (light cleanup + source tagging)
+            file_rows = []
             for record in records:
                 try:
                     # Clean record data
@@ -385,57 +441,24 @@ async def _parse_excel_files_to_invoices(
                     if not any(v for v in cleaned_record.values() if v and str(v).strip()):
                         continue
                     
-                    # Parse date
-                    date_str = cleaned_record.get('ngay_lap', '')
-                    try:
-                        if date_str and '/' in date_str:
-                            invoice_date = datetime.strptime(date_str, "%d/%m/%Y").strftime("%Y-%m-%d")
-                        else:
-                            invoice_date = datetime.now().strftime("%Y-%m-%d")
-                    except Exception:
-                        invoice_date = datetime.now().strftime("%Y-%m-%d")
-                    
-                    # Determine endpoint kind using filename for reliability
-                    endpoint_kind = 'sco-query' if 'sco-query' in filename else 'query'
-
-                    # Create GdtInvoice
-                    invoice = GdtInvoice(
-                        invoice_id=str(cleaned_record.get('stt', '')),
-                        invoice_number=str(cleaned_record.get('so_hoa_don', '')),
-                        invoice_date=invoice_date,
-                        invoice_type=flow_type,
-                        amount=float(cleaned_record.get('tong_tien_thanh_toan', 0) or 0),
-                        tax_amount=float(cleaned_record.get('tong_tien_thue', 0) or 0),
-                        supplier_name=str(cleaned_record.get('ten_nguoi_ban', '')),
-                        supplier_tax_code=str(cleaned_record.get('mst_nguoi_ban', '')),
-                        metadata={
-                            "khhdon": str(cleaned_record.get('ky_hieu_hoa_don', '')),
-                            "khmshdon": str(cleaned_record.get('ky_hieu_mau_so', 1)),
-                            "buyer_name": cleaned_record.get('ten_nguoi_mua') or '',  # Don't convert None to "None"
-                            "buyer_tax_code": cleaned_record.get('mst_nguoi_mua') or '',  # Don't convert None to "None"
-                            "status": str(cleaned_record.get('trang_thai_hoa_don', '')),
-                            "flow_type": flow_type,
-                            "endpoint_kind": endpoint_kind,
-                            "source": "excel_discovery",
-                            "excel_file": os.path.basename(file_path),
-                        },
-                    )
-                    
-                    file_invoices.append(invoice)
+                    # Attach source annotation and filename for traceability
+                    cleaned_record["_source"] = "excel"
+                    cleaned_record["_file"] = os.path.basename(file_path)
+                    file_rows.append(cleaned_record)
                     
                 except Exception as e:
-                    activity.logger.warning(f"Failed to parse invoice record: {str(e)}")
+                    activity.logger.warning(f"Failed to parse row: {str(e)}")
                     continue
             
-            all_invoices.extend(file_invoices)
-            activity.logger.info(f"✅ Parsed {len(file_invoices)} invoices from {os.path.basename(file_path)}")
+            all_rows.extend(file_rows)
+            activity.logger.info(f"✅ Parsed {len(file_rows)} rows from {os.path.basename(file_path)}")
             
         except Exception as e:
             activity.logger.error(f"❌ Error parsing Excel file {file_path}: {str(e)}")
             continue
     
-    activity.logger.info(f"📊 Total invoices parsed from Excel: {len(all_invoices)}")
-    return all_invoices
+    activity.logger.info(f"📊 Total rows parsed from Excel: {len(all_rows)}")
+    return all_rows
 
 
 def _build_request_headers(session: GdtSession) -> dict[str, str]:

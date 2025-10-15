@@ -20,6 +20,7 @@ with workflow.unsafe.imports_passed_through():
         GdtLoginRequest,
         GdtSession,
         InvoiceFetchResult,
+        DiscoveryResult,
         SummaryV1,
     )
 
@@ -156,10 +157,6 @@ class GdtInvoiceImportWorkflow:
                 "mua_vao_may_tinh_tien",
             ],
         )
-        event_flows = [f.value if hasattr(f, "value") else f for f in flows_param]
-
-        # No workflow-level external emits anymore; discovery/fetch handle their own webhooks
-
         try:
             # Step 1: Login to GDT portal
             self.session = await self._login(params)
@@ -307,7 +304,7 @@ class GdtInvoiceImportWorkflow:
         """Discover invoices using API method."""
         workflow.logger.info(f"🔗 API Discovery: Processing {len(flow_strings)} flows")
 
-        invoices = await workflow.execute_activity(
+        discovery: DiscoveryResult = await workflow.execute_activity(
             discover_invoices,
             args=[
                 self.session,
@@ -324,15 +321,18 @@ class GdtInvoiceImportWorkflow:
                 backoff_coefficient=2.0,  # Higher backoff coefficient
             ),
         )
-        
+
+        # Activity already returns normalized GdtInvoice objects
+        invoices = discovery.invoices
+
         workflow.logger.info(f"✅ API Discovery: Found {len(invoices)} invoices")
         return invoices
 
     async def _discover_via_excel(self, params: dict, flow_strings: list[str]) -> list[GdtInvoice]:
         """Discover invoices using Excel export method."""
         workflow.logger.info(f"📊 Excel Discovery: Processing {len(flow_strings)} flows")
-        
-        invoices = await workflow.execute_activity(
+
+        discovery: DiscoveryResult = await workflow.execute_activity(
             discover_invoices_excel,
             args=[
                 self.session,
@@ -349,6 +349,9 @@ class GdtInvoiceImportWorkflow:
                 backoff_coefficient=2.5,  # Higher backoff coefficient
             ),
         )
+
+        # Activity already returns normalized GdtInvoice objects
+        invoices = discovery.invoices
 
         workflow.logger.info(f"✅ Excel Discovery: Found {len(invoices)} invoices")
         return invoices

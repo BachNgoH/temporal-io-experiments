@@ -41,7 +41,7 @@ GDT_PASSWORD = "DlzGy00@"
 # COMPANY_ID = "Ngo8Vovantan"
 # COMPANY_NAME = "Ngo8Vovantan"
 COMPANY_NAME = "PATEDELI"
-COMPANY_ID = "PATEDELI"
+COMPANY_ID = "bffe767f-aed0-4d73-b996-dc80edfd752c"
 
 
 # All available flows
