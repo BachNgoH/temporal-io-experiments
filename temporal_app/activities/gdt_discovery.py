@@ -7,7 +7,7 @@ from typing import Any
 from temporalio import activity
 from temporal_app.activities.hooks import emit_on_complete
 
-from temporal_app.models import GdtInvoice, GdtSession
+from temporal_app.models import GdtInvoice, GdtSession, DiscoveryResult
 
 # ============================================================================
 # GDT Invoice API Endpoints
@@ -38,23 +38,13 @@ class GDTDiscoveryError(Exception):
 @activity.defn
 @emit_on_complete(
     event_name="discovery.completed",
-    payload_from_result=lambda invoices, session, date_range_start, date_range_end, flows: {
-        "company_id": getattr(session, "company_id", ""),
-        "date_range_start": date_range_start,
-        "date_range_end": date_range_end,
-        "flows": flows,
-        "invoice_count": len(invoices or []),
-        "run_id": activity.info().workflow_run_id,  # Add run_id for file management
-        "workflow_id": activity.info().workflow_id,  # Add workflow_id for reference
-    },
-    compact_from_result=lambda invoices, *args, **kwargs: invoices,
 )
 async def discover_invoices(
     session: GdtSession,
     date_range_start: str,
     date_range_end: str,
     flows: list[str],
-) -> list[GdtInvoice]:
+) -> DiscoveryResult:
     """
     Discover all invoices from GDT portal for specified flows.
 
@@ -92,8 +82,8 @@ async def discover_invoices(
     
     activity.logger.info(f"🚀 Processing {len(flows)} flows in BATCHES of {flow_batch_size}")
 
-    async def fetch_flow_invoices(flow_code: str) -> tuple[str, list[GdtInvoice]]:
-        """Fetch invoices for a single flow."""
+    async def fetch_flow_invoices(flow_code: str) -> tuple[str, list[dict[str, Any]]]:
+        """Fetch RAW invoice items for a single flow (no parsing)."""
         if flow_code not in FLOW_ENDPOINTS:
             activity.logger.warning(f"⚠️ Unknown flow: {flow_code}")
             return flow_code, []
@@ -112,9 +102,13 @@ async def discover_invoices(
             )
 
             if response_data and response_data.get("datas"):
-                invoices = _parse_invoices(response_data["datas"], flow_code)
-                activity.logger.info(f"✅ {flow_code}: Found {len(invoices)} invoices")
-                return flow_code, invoices
+                raw_items: list[dict[str, Any]] = response_data["datas"]
+                # Minimal annotation to help workflow normalization
+                for item in raw_items:
+                    if isinstance(item, dict):
+                        item.setdefault("flow_type", flow_code)
+                activity.logger.info(f"✅ {flow_code}: Found {len(raw_items)} invoices (raw)")
+                return flow_code, raw_items
             else:
                 activity.logger.warning(f"⚠️ {flow_code}: No invoices found")
                 return flow_code, []
@@ -176,18 +170,18 @@ async def discover_invoices(
     results = all_results
 
     # Combine results and track failures
-    all_invoices = []
+    all_raw_items: list[dict[str, Any]] = []
     failed_flows = []
     successful_flows = []
     
     for i, result in enumerate(results):
         flow_code = flows[i]
         if isinstance(result, tuple):
-            _, invoices = result
-            all_invoices.extend(invoices)
-            if invoices:
+            _, raw_items = result
+            all_raw_items.extend(raw_items)
+            if raw_items:
                 successful_flows.append(flow_code)
-                activity.logger.info(f"✅ {flow_code}: Successfully found {len(invoices)} invoices")
+                activity.logger.info(f"✅ {flow_code}: Successfully found {len(raw_items)} invoices (raw)")
             else:
                 activity.logger.warning(f"⚠️ {flow_code}: No invoices found (but request succeeded)")
         else:
@@ -198,7 +192,7 @@ async def discover_invoices(
     activity.logger.info(f"📊 Discovery Summary:")
     activity.logger.info(f"   ✅ Successful flows: {len(successful_flows)}/{len(flows)}")
     activity.logger.info(f"   ❌ Failed flows: {len(failed_flows)}/{len(flows)}")
-    activity.logger.info(f"   📄 Total invoices found: {len(all_invoices)}")
+    activity.logger.info(f"   📄 Total invoices found: {len(all_raw_items)}")
     activity.logger.info(f"   🚦 Rate limit errors encountered: {rate_limit_errors}")
     activity.logger.info(f"   📦 Final batch size: {flow_batch_size}, delay: {flow_delay}s")
     
@@ -209,10 +203,10 @@ async def discover_invoices(
         activity.logger.info(f"✅ Successful flows: {successful_flows}")
 
     # Send heartbeat with detailed progress
-    activity.heartbeat(f"Discovered {len(all_invoices)} invoices from {len(successful_flows)}/{len(flows)} flows")
+    activity.heartbeat(f"Discovered {len(all_raw_items)} invoices from {len(successful_flows)}/{len(flows)} flows")
 
     # Handle different scenarios for empty results
-    if len(all_invoices) == 0:
+    if len(all_raw_items) == 0:
         if len(failed_flows) == 0:
             # All flows succeeded but no invoices found - might be legitimate (no data) or temporary issue
             activity.logger.warning("⚠️ No invoices found in any flow - this might be a temporary issue")
@@ -226,7 +220,72 @@ async def discover_invoices(
             activity.logger.warning(f"⚠️ No invoices found - {len(failed_flows)} flows failed, {len(successful_flows)} succeeded")
             # Don't fail the activity - return empty list and let workflow decide
 
-    return all_invoices
+    # Convert raw API items to GdtInvoice objects
+    invoices: list[GdtInvoice] = []
+    for item in all_raw_items:
+        try:
+            # Parse date from API format
+            date_str_raw = item.get("tdlap", "")
+            try:
+                if isinstance(date_str_raw, str) and date_str_raw:
+                    invoice_date = datetime.fromisoformat(str(date_str_raw).replace("Z", "+00:00")).strftime("%Y-%m-%d")
+                else:
+                    invoice_date = datetime.utcnow().strftime("%Y-%m-%d")
+            except Exception:
+                invoice_date = datetime.utcnow().strftime("%Y-%m-%d")
+
+            # Get flow type from item
+            flow_type = str(item.get("flow_type", ""))
+
+            # Determine endpoint kind based on flow type
+            endpoint_kind = "sco-query" if "may_tinh_tien" in flow_type else "query"
+
+            # Build metadata with all extra fields
+            metadata = {
+                "khhdon": str(item.get("khhdon", "")),
+                "khmshdon": str(item.get("khmshdon", "1")),
+                "buyer_name": str(item.get("nmten", "")),
+                "buyer_tax_code": str(item.get("nmmst", "")),
+                "status": str(item.get("tthai", "")),
+                "flow_type": flow_type,
+                "endpoint_kind": endpoint_kind,
+                "source": "api_discovery",
+                "dia_chi_nguoi_ban": str(item.get("nbdchi", "")),
+                "tong_tien_chua_thue": str(item.get("tgtcthue", "0")),
+                "tong_tien_chiet_khau_thuong_mai": str(item.get("ttcktmai", "0")),
+                "tong_tien_phi": str(item.get("tphi", "0")),
+                "don_vi_tien_te": str(item.get("dvtte", "VND")),
+                "ty_gia": str(item.get("tygia", "1")),
+                "ket_qua_kiem_tra_hoa_don": str(item.get("kqcht", "")),
+            }
+
+            invoice = GdtInvoice(
+                invoice_id=str(item.get("id", "")),
+                invoice_number=str(item.get("shdon", "")),
+                invoice_date=invoice_date,
+                invoice_type=flow_type,
+                amount=float(item.get("tgtttbso", 0) or 0),
+                tax_amount=float(item.get("tgtthue", 0) or 0),
+                supplier_name=str(item.get("nbten", "")),
+                supplier_tax_code=str(item.get("nbmst", "")),
+                metadata=metadata,
+            )
+            invoices.append(invoice)
+        except Exception as e:
+            activity.logger.warning(f"Failed to parse invoice item: {str(e)}")
+            continue
+
+    activity.logger.info(f"✅ Converted {len(invoices)} raw items to GdtInvoice objects")
+
+    return DiscoveryResult(
+        company_id=session.company_id,
+        date_range_start=date_range_start,
+        date_range_end=date_range_end,
+        flows=flows,
+        invoice_count=len(invoices),
+        invoices=invoices,
+        raw_invoices=all_raw_items,
+    )
 
 
 async def _make_api_request(
@@ -370,47 +429,7 @@ async def _make_api_request(
         return None
 
 
-def _parse_invoices(invoice_data: list[dict[str, Any]], flow_type: str) -> list[GdtInvoice]:
-    """Parse invoice data from GDT API response."""
-    invoices = []
-
-    for item in invoice_data:
-        try:
-            # Parse date (GDT returns ISO format)
-            date_str = item.get("tdlap", "")
-            try:
-                if date_str:
-                    invoice_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-                else:
-                    invoice_date = datetime.now()
-            except Exception:
-                invoice_date = datetime.now()
-
-            invoice = GdtInvoice(
-                invoice_id=str(item.get("id", "")),
-                invoice_number=str(item.get("shdon", "")),
-                invoice_date=invoice_date.strftime("%Y-%m-%d"),
-                invoice_type=flow_type,
-                amount=float(item.get("tgtttbso", 0) or 0),
-                tax_amount=float(item.get("tgtthue", 0) or 0),
-                supplier_name=str(item.get("nbten", "")),
-                supplier_tax_code=str(item.get("nbmst", "")),
-                metadata={
-                    "khhdon": str(item.get("khhdon", "")),  # Invoice code
-                    "khmshdon": str(item.get("khmshdon", 1)),  # Invoice code type (must be string)
-                    "buyer_name": str(item.get("nmten", "")),
-                    "buyer_tax_code": str(item.get("nmmst", "")),
-                    "status": str(item.get("tthai", "")),
-                    "flow_type": flow_type,
-                },
-            )
-            invoices.append(invoice)
-
-        except Exception as e:
-            activity.logger.warning(f"Failed to parse invoice: {str(e)}")
-            continue
-
-    return invoices
+## Parsing is intentionally moved to the workflow normalization step
 
 
 def _build_request_headers(session: GdtSession) -> dict[str, str]:
