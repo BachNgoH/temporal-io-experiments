@@ -1,7 +1,7 @@
 """GDT Invoice Import Workflow - Extensible base for future task types."""
 
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 
 from temporalio import workflow
@@ -21,7 +21,6 @@ with workflow.unsafe.imports_passed_through():
         GdtSession,
         InvoiceFetchResult,
         DiscoveryResult,
-        SummaryV1,
     )
 
 
@@ -131,32 +130,43 @@ class GdtInvoiceImportWorkflow:
 
         Args:
             params: Task parameters (see GdtInvoiceImportParams)
+                - If date_range_start/end not provided, defaults to yesterday
+                - If discovery_method not provided, defaults to "excel"
+                - If processing_mode not provided, defaults to "sequential"
 
         Returns:
             dict: Task result with statistics
         """
+        # Apply defaults for missing parameters
+        if "date_range_start" not in params or "date_range_end" not in params:
+            # Default to yesterday's date (UTC) - use workflow.now() for determinism
+            yesterday = workflow.now() - timedelta(days=1)
+            yesterday_str = yesterday.strftime("%Y-%m-%d")
+            params.setdefault("date_range_start", yesterday_str)
+            params.setdefault("date_range_end", yesterday_str)
+            workflow.logger.info(
+                f"No date range specified, defaulting to yesterday: {yesterday_str}"
+            )
+
+        # Default discovery method to excel (more reliable)
+        params.setdefault("discovery_method", "excel")
+
+        # Default processing mode to sequential (more stable)
+        params.setdefault("processing_mode", "sequential")
+
         workflow.logger.info(
             f"Starting GDT invoice import for {params['company_id']} "
             f"from {params['date_range_start']} to {params['date_range_end']}"
         )
+        workflow.logger.info(f"Discovery method: {params['discovery_method']}")
+        workflow.logger.info(f"Processing mode: {params['processing_mode']}")
 
         # Extract processing mode from parameters
         self.processing_mode = params.get("processing_mode", "sequential")
-        workflow.logger.info(f"Processing mode: {self.processing_mode}")
 
         # Store company_id for events
         self.company_id = params.get("company_id", "")
 
-        # Prepare flows for event payloads
-        flows_param = params.get(
-            "flows",
-            [
-                "ban_ra_dien_tu",
-                "ban_ra_may_tinh_tien",
-                "mua_vao_dien_tu",
-                "mua_vao_may_tinh_tien",
-            ],
-        )
         try:
             # Step 1: Login to GDT portal
             self.session = await self._login(params)
@@ -170,17 +180,11 @@ class GdtInvoiceImportWorkflow:
             # Step 3: Fetch all invoices in parallel (with concurrency limit)
             await self._fetch_all_invoices()
 
-            # Step 4: Emit END event and return compact result
+            # Step 4: Return compact result
             success_rate = (
                 round(self.completed_invoices / self.total_invoices * 100, 2)
                 if self.total_invoices > 0
                 else 0.0
-            )
-            summary = SummaryV1(
-                total_invoices=self.total_invoices,
-                completed_invoices=self.completed_invoices,
-                failed_invoices=self.failed_invoices,
-                success_rate=success_rate,
             )
             result_ref = f"wf:{workflow.info().workflow_id}:{workflow.info().run_id}"
 
@@ -198,17 +202,6 @@ class GdtInvoiceImportWorkflow:
 
         except Exception as e:
             workflow.logger.error(f"Workflow failed: {str(e)}")
-            success_rate = (
-                round(self.completed_invoices / (self.total_invoices or 1) * 100, 2)
-                if self.total_invoices > 0
-                else 0.0
-            )
-            summary = SummaryV1(
-                total_invoices=self.total_invoices,
-                completed_invoices=self.completed_invoices,
-                failed_invoices=self.failed_invoices,
-                success_rate=success_rate,
-            )
             # Failure - activities may have posted partial progress already
             return {
                 "status": "failed",
@@ -402,7 +395,7 @@ class GdtInvoiceImportWorkflow:
             
             # Wait before next batch (except for last batch)
             if i + config.batch_size < len(self.invoices):
-                await asyncio.sleep(config.delay)
+                await workflow.sleep(config.delay)
         
         return all_results
 
@@ -499,7 +492,7 @@ class GdtInvoiceImportWorkflow:
             
             # Wait before next retry batch
             if i + retry_config.batch_size < len(failed_invoices):
-                await asyncio.sleep(retry_config.delay)
+                await workflow.sleep(retry_config.delay)
 
     def _get_failed_invoices(self) -> list[GdtInvoice]:
         """Get list of invoices that failed in the main processing."""

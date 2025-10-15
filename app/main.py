@@ -7,12 +7,28 @@ from fastapi import FastAPI, HTTPException
 from fastapi import Request
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from temporalio.client import Client
 
 from app.config import settings
-from app.models import TaskRequest, TaskResponse, TaskStatus, TaskStatusResponse, TaskType
+from app.models import (
+    CreateScheduleRequest,
+    ScheduleResponse,
+    TaskRequest,
+    TaskResponse,
+    TaskStatus,
+    TaskStatusResponse,
+    TaskType,
+)
 from temporal_app.workflows.gdt_invoice_import import GdtInvoiceImportWorkflow
+from temporalio.client import (
+    Schedule,
+    ScheduleActionStartWorkflow,
+    ScheduleCalendarSpec,
+    ScheduleRange,
+    ScheduleSpec,
+    ScheduleState,
+)
 
 
 # Global Temporal client
@@ -228,6 +244,234 @@ async def cancel_task(workflow_id: str) -> dict[str, str]:
 
 
 # ============================================================================
+# Schedule Management Endpoints
+# ============================================================================
+
+
+@app.post("/api/schedules/create")
+async def create_schedule(request: CreateScheduleRequest) -> ScheduleResponse:
+    """
+    Create a daily schedule for any task type.
+
+    Schedule Behavior:
+    - Runs daily at specified time (hour:minute in UTC)
+    - Imports FULL previous day (00:00:00 to 23:59:59)
+    - Best practice: Run at low-traffic time (e.g., 1:00 AM UTC)
+
+    The task_params can use Go template syntax for dynamic dates:
+    - {{ .ScheduledTime.Add(-24h).Format "2006-01-02" }} - previous day
+    - {{ .ScheduledTime.Format "2006-01-02" }} - current day
+
+    Example for daily invoice import (runs at 1 AM, imports previous full day):
+    ```json
+    {
+        "schedule_id": "daily-invoice-import-company123",
+        "task_type": "gdt_invoice_import",
+        "task_params": {
+            "company_id": "0123456789",
+            "credentials": {"username": "user", "password": "pass"},
+            "date_range_start": "{{ .ScheduledTime.Add(-24h).Format \"2006-01-02\" }}",
+            "date_range_end": "{{ .ScheduledTime.Add(-24h).Format \"2006-01-02\" }}",
+            "flows": ["ban_ra_dien_tu", "mua_vao_dien_tu"],
+            "discovery_method": "excel",
+            "processing_mode": "sequential"
+        },
+        "hour": 1,
+        "minute": 0,
+        "note": "Daily import - runs at 1 AM UTC, imports full previous day (00:00-23:59)"
+    }
+    ```
+
+    Omit date_range_start/end to auto-import yesterday:
+    ```json
+    {
+        "schedule_id": "daily-invoice-import-company123",
+        "task_type": "gdt_invoice_import",
+        "task_params": {
+            "company_id": "0123456789",
+            "credentials": {"username": "user", "password": "pass"}
+        },
+        "hour": 1,
+        "minute": 0
+    }
+    ```
+    """
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        # Get workflow class for the task type
+        workflow_class = _get_workflow_class(request.task_type)
+
+        # Create schedule
+        schedule = Schedule(
+            action=ScheduleActionStartWorkflow(
+                workflow_class.run,
+                request.task_params,
+                id=f"{request.schedule_id}-{{{{ .ScheduledTime.Format \"20060102-150405\" }}}}",
+                task_queue=settings.temporal_task_queue,
+            ),
+            spec=ScheduleSpec(
+                calendars=[
+                    ScheduleCalendarSpec(
+                        hour=[ScheduleRange(start=request.hour)],
+                        minute=[ScheduleRange(start=request.minute)],
+                    )
+                ],
+            ),
+            state=ScheduleState(
+                note=request.note or f"Daily {request.task_type.value} schedule",
+                paused=request.paused,
+            ),
+        )
+
+        print(f"🗓️  Creating schedule: {request.schedule_id}")
+        print(f"📋 Task type: {request.task_type.value}")
+        print(f"⏰ Time: {request.hour:02d}:{request.minute:02d} UTC")
+
+        await temporal_client.create_schedule(request.schedule_id, schedule)
+
+        print(f"✅ Schedule created successfully: {request.schedule_id}")
+        return ScheduleResponse(
+            schedule_id=request.schedule_id,
+            task_type=request.task_type,
+            status="created",
+            message=f"Schedule created - runs daily at {request.hour:02d}:{request.minute:02d} UTC",
+        )
+
+    except Exception as e:
+        print(f"❌ Failed to create schedule: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create schedule: {str(e)}")
+
+
+@app.get("/api/schedules/{schedule_id}")
+async def get_schedule(schedule_id: str) -> dict[str, Any]:
+    """Get schedule details."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        handle = temporal_client.get_schedule_handle(schedule_id)
+        desc = await handle.describe()
+
+        return {
+            "schedule_id": schedule_id,
+            "paused": desc.schedule.state.paused,
+            "note": desc.schedule.state.note,
+            "num_actions": desc.info.num_actions,
+            "num_actions_skipped": desc.info.num_actions_skipped_overlap,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Schedule not found: {str(e)}")
+
+
+@app.get("/api/schedules")
+async def list_schedules() -> dict[str, list[dict[str, Any]]]:
+    """List all schedules."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        schedules = []
+        async for schedule in await temporal_client.list_schedules():
+            schedules.append(
+                {
+                    "id": schedule.id,
+                    "info": {
+                        "num_actions": schedule.info.num_actions,
+                        "paused": schedule.info.paused,
+                    },
+                }
+            )
+
+        return {"schedules": schedules}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list schedules: {str(e)}")
+
+
+@app.post("/api/schedules/{schedule_id}/trigger")
+async def trigger_schedule(schedule_id: str) -> dict[str, str]:
+    """Manually trigger a schedule to run immediately."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        handle = temporal_client.get_schedule_handle(schedule_id)
+        await handle.trigger()
+
+        return {
+            "schedule_id": schedule_id,
+            "status": "triggered",
+            "message": "Schedule triggered successfully",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to trigger schedule: {str(e)}")
+
+
+@app.post("/api/schedules/{schedule_id}/pause")
+async def pause_schedule(schedule_id: str, note: str = "") -> dict[str, str]:
+    """Pause a schedule."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        handle = temporal_client.get_schedule_handle(schedule_id)
+        await handle.pause(note=note)
+
+        return {
+            "schedule_id": schedule_id,
+            "status": "paused",
+            "message": "Schedule paused successfully",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to pause schedule: {str(e)}")
+
+
+@app.post("/api/schedules/{schedule_id}/unpause")
+async def unpause_schedule(schedule_id: str, note: str = "") -> dict[str, str]:
+    """Unpause a schedule."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        handle = temporal_client.get_schedule_handle(schedule_id)
+        await handle.unpause(note=note)
+
+        return {
+            "schedule_id": schedule_id,
+            "status": "unpaused",
+            "message": "Schedule unpaused successfully",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to unpause schedule: {str(e)}")
+
+
+@app.delete("/api/schedules/{schedule_id}")
+async def delete_schedule(schedule_id: str) -> dict[str, str]:
+    """Delete a schedule."""
+    if not temporal_client:
+        raise HTTPException(status_code=503, detail="Temporal client not initialized")
+
+    try:
+        handle = temporal_client.get_schedule_handle(schedule_id)
+        await handle.delete()
+
+        return {
+            "schedule_id": schedule_id,
+            "status": "deleted",
+            "message": "Schedule deleted successfully",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete schedule: {str(e)}")
+
+
+# ============================================================================
 # Internal webhook receiver (mock) - receives event posts from worker
 # ============================================================================
 
@@ -251,7 +495,7 @@ async def receive_internal_webhook(request: Request) -> dict[str, str]:
         run_id = body.get("run_id") or "unknown"
         event_name = body.get("event_name", "event")
         event_id = body.get("event_id", "no-id")
-        timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
         base_dir = os.path.join(os.path.dirname(__file__), "data", "events", run_id)
         os.makedirs(base_dir, exist_ok=True)

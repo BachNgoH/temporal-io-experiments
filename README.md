@@ -5,6 +5,7 @@ A production-ready, extensible task orchestration system using Temporal.io with 
 ## Features
 
 - ✅ **Extensible Task Types** - Easy to add new task types beyond GDT invoice import
+- ✅ **Daily Scheduling** - Automated daily imports of previous day's invoices (00:00-23:59)
 - ✅ **Hybrid Architecture** - Base workers (Compute Engine) + Burst workers (Cloud Run Jobs)
 - ✅ **Stateless API** - No database required, all state managed by Temporal
 - ✅ **Smart Rate Limiting** - Prevents cascade failures with shared backoff state
@@ -71,6 +72,58 @@ open http://localhost:8080
 - Temporal UI: http://localhost:8080
 
 📖 **Detailed Setup Guide:** [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)
+
+## Daily Scheduling
+
+Create schedules to automatically import invoices daily at low-traffic times:
+
+**Simplest approach - Auto-import yesterday:**
+```bash
+curl -X POST http://localhost:8000/api/schedules/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schedule_id": "daily-import-company123",
+    "task_type": "gdt_invoice_import",
+    "task_params": {
+      "company_id": "0123456789",
+      "credentials": {"username": "user", "password": "pass"}
+    },
+    "hour": 1,
+    "minute": 0,
+    "note": "Runs at 1 AM UTC, imports full previous day (00:00-23:59)"
+  }'
+```
+
+**Using CLI script:**
+```bash
+python scripts/create_daily_schedule.py create \
+    --schedule-id daily-import-company123 \
+    --company-id 0123456789 \
+    --username user@example.com \
+    --password secretpass \
+    --hour 1 --minute 0
+```
+
+**How it works:**
+- Schedule runs **daily at 1:00 AM UTC** (configurable)
+- Imports **full previous day** (00:00:00 to 23:59:59)
+- Uses **excel discovery** (more reliable) and **sequential processing** (more stable) by default
+- All parameters are configurable via `task_params`
+
+**Managing schedules:**
+```bash
+# List all schedules
+curl http://localhost:8000/api/schedules
+
+# Trigger schedule manually (runs immediately)
+curl -X POST http://localhost:8000/api/schedules/daily-import-company123/trigger
+
+# Pause schedule
+curl -X POST http://localhost:8000/api/schedules/daily-import-company123/pause
+
+# Delete schedule
+curl -X DELETE http://localhost:8000/api/schedules/daily-import-company123
+```
 
 ## Deployment to GCP
 
