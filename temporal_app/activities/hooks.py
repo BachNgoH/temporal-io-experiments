@@ -15,7 +15,7 @@ import hmac
 import hashlib
 from typing import Any, Optional
 from dataclasses import is_dataclass, asdict
-
+import uuid
 import httpx
 from app.config import settings
 from temporalio import activity
@@ -30,7 +30,7 @@ class EventEnvelope(BaseModel):
 
     event_id: str
     event_name: str
-    payload: Any
+    event_payload: Any
 
 
 def emit_on_complete(
@@ -71,9 +71,9 @@ def emit_on_complete(
                     payload_obj = result
 
                 envelope = EventEnvelope(
-                    event_id=activity.info().activity_id,
+                    event_id=str(uuid.uuid4()),
                     event_name=event_name,
-                    payload=payload_obj,
+                    event_payload=payload_obj,
                 )
 
                 body_str = envelope.model_dump_json()

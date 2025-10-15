@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     temporal_key_path: str | None = None
 
     # Webhooks (read directly from WEBHOOK_URL and WEBHOOK_SIGNING_SECRET)
-    webhook_url: str = "http://host.docker.internal:8000/internal/webhooks"
+    webhook_url: str = "http://host.docker.internal:8001/api/v1/internal/webhooks/ai-core"
     webhook_signing_secret: str = "test-webhook-secret-12345"
 
 

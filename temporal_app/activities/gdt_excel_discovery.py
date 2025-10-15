@@ -26,7 +26,7 @@ class GDTExcelDiscoveryError(Exception):
 
 @activity.defn
 @emit_on_complete(
-    event_name="discovery.completed",
+    event_name="invoice_discovery.completed",
 )
 async def discover_invoices_excel(
     session: GdtSession,

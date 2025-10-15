@@ -316,7 +316,7 @@ async def _upload_xml_to_gcs(
 # ============================================================================
 @activity.defn
 @emit_on_complete(
-    event_name="fetch.completed",
+    event_name="invoice_fetch.completed",
 )
 async def fetch_invoice(
     invoice: GdtInvoice,
