@@ -316,31 +316,7 @@ async def _upload_xml_to_gcs(
 # ============================================================================
 @activity.defn
 @emit_on_complete(
-    event_name="fetch.completed",
-    payload_from_result=lambda r, invoice, session: {
-        "company_id": getattr(invoice, "metadata", {}).get("company_id"),
-        "invoice_id": getattr(invoice, "invoice_id", ""),
-        "invoice_number": getattr(invoice, "invoice_number", ""),
-        "invoice_detail": r.get("invoice_detail"),
-        "line_items": r.get("line_items", []),
-        "metadata": getattr(invoice, "metadata", {}),
-        "xml_gcs_url": r.get("xml_gcs_url"),
-        "xml_download_status": r.get("xml_download_status"),
-        "run_id": activity.info().workflow_run_id,  # Add run_id for file management
-        "workflow_id": activity.info().workflow_id,  # Add workflow_id for reference
-    },
-    compact_from_result=lambda r, invoice, session: InvoiceFetchResult(
-        invoice_id=getattr(invoice, "invoice_id", ""),
-        success=True,
-        data={
-            "invoice_id": getattr(invoice, "invoice_id", ""),
-            "invoice_number": getattr(invoice, "invoice_number", ""),
-            "metadata": getattr(invoice, "metadata", {}),
-            "line_items_count": len(r.get("line_items", [])),
-        },
-        xml_gcs_url=r.get("xml_gcs_url"),
-        xml_download_status=r.get("xml_download_status"),
-    ),
+    event_name="invoice_fetch.completed",
 )
 async def fetch_invoice(
     invoice: GdtInvoice,
@@ -543,13 +519,25 @@ async def fetch_invoice(
                         #     xml_download_status = "failed"
                         #     activity.logger.error(f"❌ XML download/upload error for invoice {invoice.invoice_id}: {xml_error}")
 
-                        # Return full data to decorator for webhook; decorator returns compact to workflow
-                        return {
-                            "invoice_detail": invoice_detail, 
-                            "line_items": line_items,
-                            "xml_gcs_url": xml_gcs_url,
-                            "xml_download_status": xml_download_status
-                        }
+                        # Prepare metadata without status field
+                        invoice_metadata = getattr(invoice, "metadata", {}).copy()
+                        invoice_metadata.pop("status", None)  # Exclude status from webhook payload
+
+                        # Return typed result; flatten invoice_detail into top level
+                        return InvoiceFetchResult(
+                            invoice_id=invoice.invoice_id,
+                            success=True,
+                            data={
+                                "company_id": getattr(session, "company_id", None),
+                                "invoice_id": invoice.invoice_id,
+                                "invoice_number": invoice.invoice_number,
+                                "line_items": line_items,
+                                "metadata": invoice_metadata,
+                                **invoice_detail,  # Flatten invoice_detail fields to top level
+                            },
+                            xml_gcs_url=xml_gcs_url,
+                            xml_download_status=xml_download_status,
+                        )
                     else:
                         activity.logger.error(f"Empty JSON response for invoice {invoice.invoice_id}, Response: {response.text[:500]}, Request URL: {full_url}, Response status: {response.status_code}, Raw Response: {response}")
                         raise Exception(f"Empty JSON response from detail API for invoice {invoice.invoice_id}")

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
+from pydantic import BaseModel
 
 
 # ============================================================================
@@ -43,6 +44,22 @@ class GdtInvoice:
     supplier_name: str
     supplier_tax_code: str
     metadata: dict[str, str]
+
+
+class DiscoveryResult(BaseModel):
+    """Result of discovery activities.
+
+    - invoices: raw items (from API `datas` or Excel rows) - unparsed for flexibility
+    - The workflow will normalize these into `GdtInvoice` before fetching
+    """
+
+    company_id: str
+    date_range_start: str
+    date_range_end: str
+    flows: list[str]
+    invoice_count: int
+    invoices: list[Any]
+    raw_invoices: list[Any] | None = None
 
 
 @dataclass
