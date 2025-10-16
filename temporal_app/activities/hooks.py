@@ -82,11 +82,11 @@ def emit_on_complete(
                 headers = _build_b4b_headers(body=body_bytes, secret=secret)
 
                 async with httpx.AsyncClient(timeout=10.0) as client:
-                    print("EMMITING TO ", settings.webhook_url)
+                    activity.logger.info(f"emmiting to webhook url: {settings.webhook_url}")
                     await client.post(settings.webhook_url, content=body_bytes, headers=headers)
 
             except Exception as e:
-                activity.logger.warning(f"emit_on_complete failed: {e}")
+                activity.logger.warning(f"emit_on_complete failed: {e}, webhook url: {settings.webhook_url}")
 
             # Return result (optionally excluding keys for BaseModel/dict)
             if exclude_result_keys:
