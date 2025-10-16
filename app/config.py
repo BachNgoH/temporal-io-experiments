@@ -1,12 +1,18 @@
 """Application configuration."""
 
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Get the project root directory (parent of app/)
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENV_FILE = BASE_DIR / ".env"
 
 
 class Settings(BaseSettings):
     """Application settings."""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=str(ENV_FILE), env_file_encoding="utf-8", extra="ignore")
 
     # Application
     app_name: str = "Temporal Task System"
@@ -24,7 +30,7 @@ class Settings(BaseSettings):
     temporal_key_path: str | None = None
 
     # Webhooks (read directly from WEBHOOK_URL and WEBHOOK_SIGNING_SECRET)
-    webhook_url: str = "http://host.docker.internal:8001/api/v1/internal/webhooks/ai-core"
+    webhook_url: str = "http://localhost:8000/api/v1/internal/webhooks/ai-core"
     webhook_signing_secret: str = "test-webhook-secret-12345"
 
 
