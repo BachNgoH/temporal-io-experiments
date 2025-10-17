@@ -9,7 +9,11 @@ ENV_FILE = BASE_DIR / ".env"
 class Settings(BaseSettings):
     """Application settings."""
 
-    model_config = SettingsConfigDict(env_file=str(ENV_FILE), env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=str(ENV_FILE) if ENV_FILE.exists() else None,
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
     # Application
     app_name: str = "Temporal Task System"
