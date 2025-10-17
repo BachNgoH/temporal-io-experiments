@@ -70,8 +70,7 @@ class InvoiceFetchResult:
     success: bool
     data: dict[str, Any] | None = None
     error: str | None = None
-    xml_gcs_url: str | None = None  # GCS URL for downloaded XML file
-    xml_download_status: str | None = None  # "success" | "failed" | "not_attempted"
+    invoice_xml: str | None = None  # XML content as string
 
 
 # ============================================================================
