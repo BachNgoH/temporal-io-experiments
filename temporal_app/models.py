@@ -60,6 +60,7 @@ class DiscoveryResult(BaseModel):
     invoice_count: int
     invoices: list[Any]
     raw_invoices: list[Any] | None = None
+    failed_flows: list[str] | None = None
 
 
 @dataclass

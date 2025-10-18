@@ -285,6 +285,7 @@ async def discover_invoices(
         invoice_count=len(invoices),
         invoices=invoices,
         raw_invoices=all_raw_items,
+        failed_flows=failed_flows or None,
     )
 
 

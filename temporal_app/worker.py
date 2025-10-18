@@ -17,7 +17,9 @@ from temporal_app.activities import (
     fetch_invoice,
     login_to_gdt,
 )
+from temporal_app.interceptors.lark.notify_activity import lark_notify
 from temporal_app.workflows import GdtInvoiceImportWorkflow
+from temporal_app.interceptors import LarkNotifierInterceptor
 
 # Setup logging
 logging.basicConfig(
@@ -78,11 +80,16 @@ class TemporalWorker:
                 discover_invoices,
                 discover_invoices_excel,
                 fetch_invoice,
+                lark_notify,
                 # Add future activities here
             ],
             # Concurrency settings (different for base vs burst)
             max_concurrent_workflow_tasks=concurrency_settings["workflows"],
             max_concurrent_activities=concurrency_settings["activities"],
+            # Interceptors (notifications, metrics, etc.)
+            interceptors=[
+                LarkNotifierInterceptor(),
+            ],
             # Graceful shutdown
             graceful_shutdown_timeout=timedelta(seconds=30),
         )

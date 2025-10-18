@@ -34,5 +34,8 @@ class Settings(BaseSettings):
     webhook_url: str = "http://localhost:8000/api/v1/internal/webhooks/ai-core"
     webhook_signing_secret: str = "test-webhook-secret-12345"
 
+    # Lark notifications
+    lark_webhook_url: str | None = None
+
 
 settings = Settings()

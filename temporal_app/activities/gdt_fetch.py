@@ -222,7 +222,6 @@ async def _download_invoice_xml_with_retry(
 @activity.defn
 @emit_on_complete(
     event_name="invoice_fetch.completed",
-    # exclude_result_keys={"invoice_xml"},
 )
 async def fetch_invoice(
     invoice: GdtInvoice,
