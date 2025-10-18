@@ -60,6 +60,7 @@ class DiscoveryResult(BaseModel):
     invoice_count: int
     invoices: list[Any]
     raw_invoices: list[Any] | None = None
+    failed_flows: list[str] | None = None
 
 
 @dataclass
@@ -70,8 +71,7 @@ class InvoiceFetchResult:
     success: bool
     data: dict[str, Any] | None = None
     error: str | None = None
-    xml_gcs_url: str | None = None  # GCS URL for downloaded XML file
-    xml_download_status: str | None = None  # "success" | "failed" | "not_attempted"
+    invoice_xml: str | None = None  # XML content as string
 
 
 # ============================================================================

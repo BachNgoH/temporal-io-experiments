@@ -13,12 +13,6 @@ from temporal_app.activities.hooks import emit_on_complete
 
 from temporal_app.models import GdtInvoice, GdtSession, InvoiceFetchResult
 
-# GCS imports
-try:
-    from google.cloud import storage
-except ImportError:
-    storage = None
-
 # ============================================================================
 # GDT Invoice Detail URLs
 # ============================================================================
@@ -35,7 +29,6 @@ GDT_XML_EXPORT_SCO_URL = f"{GDT_BASE_URL}/sco-query/invoices/export-xml"
 # ============================================================================
 REQUEST_TIMEOUT_SECONDS = 30.0
 XML_DOWNLOAD_MAX_RETRIES = 3
-GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", "gdt-invoice-xmls")
 
 
 # ============================================================================
@@ -48,7 +41,7 @@ async def _download_invoice_xml(
     endpoint_kind: str
 ) -> Optional[str]:
     """
-    Download XML file for a specific invoice.
+    Download XML content for a specific invoice.
     
     Args:
         invoice: GdtInvoice with invoice parameters
@@ -56,7 +49,7 @@ async def _download_invoice_xml(
         endpoint_kind: "query" or "sco-query" to determine endpoint
         
     Returns:
-        Path to downloaded XML file or None if failed
+        XML content as string or None if failed
     """
     try:
         # Extract required parameters from invoice metadata
@@ -106,16 +99,11 @@ async def _download_invoice_xml(
             response = await client.get(export_url, params=params)
 
             if response.status_code == 200:
-                # Create filename using invoice_code and invoice_number
-                invoice_code = invoice.metadata.get("khhdon", "unknown")
-                invoice_number = invoice.invoice_number
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
                 # Check if response is a ZIP file
                 content_type = response.headers.get("content-type", "")
                 if "zip" in content_type.lower() or response.content.startswith(b"PK"):
                     # Handle ZIP file extraction
-                    activity.logger.info(f"📦 Received ZIP file for {invoice_code}-{invoice_number}, extracting...")
+                    activity.logger.info(f"📦 Received ZIP file for {khhdon}-{shdon}, extracting...")
 
                     try:
                         # Save ZIP to temporary file
@@ -129,54 +117,41 @@ async def _download_invoice_xml(
                             zip_files = zip_ref.namelist()
                             activity.logger.info(f"📦 ZIP contains files: {zip_files}")
 
-                            xml_file_path = None
+                            xml_content = None
                             for file_name in zip_files:
                                 if file_name.lower().endswith(".xml"):
-                                    # Extract XML file
-                                    xml_content = zip_ref.read(file_name)
-
-                                    # Create final XML filename using invoice_code and invoice_number
-                                    xml_filename = f"{invoice_code}_{invoice_number}_{timestamp}.xml"
-                                    xml_file_path = os.path.join(tempfile.gettempdir(), xml_filename)
-
-                                    # Save extracted XML content
-                                    with open(xml_file_path, "wb") as f:
-                                        f.write(xml_content)
-
-                                    activity.logger.success(f"✅ Extracted XML from ZIP: {xml_filename}")
+                                    # Extract XML content as bytes
+                                    xml_bytes = zip_ref.read(file_name)
+                                    # Decode to string
+                                    xml_content = xml_bytes.decode("utf-8")
+                                    activity.logger.info(f"✅ Extracted XML from ZIP: {file_name}")
                                     break
 
                             # Clean up temporary ZIP file
                             os.unlink(temp_zip_path)
 
-                            if xml_file_path:
-                                return xml_file_path
+                            if xml_content:
+                                return xml_content
                             else:
-                                activity.logger.warning(f"No XML file found in ZIP for {invoice_code}-{invoice_number}")
+                                activity.logger.warning(f"No XML file found in ZIP for {khhdon}-{shdon}")
                                 return None
 
                     except zipfile.BadZipFile:
-                        activity.logger.error(f"Invalid ZIP file received for {invoice_code}-{invoice_number}")
+                        activity.logger.error(f"Invalid ZIP file received for {khhdon}-{shdon}")
                         return None
                     except Exception as e:
-                        activity.logger.error(f"Error extracting ZIP for {invoice_code}-{invoice_number}: {e}")
+                        activity.logger.error(f"Error extracting ZIP for {khhdon}-{shdon}: {e}")
                         return None
 
                 else:
                     # Handle direct XML response (fallback)
-                    xml_filename = f"{invoice_code}_{invoice_number}_{timestamp}.xml"
-                    xml_file_path = os.path.join(tempfile.gettempdir(), xml_filename)
-
-                    # Save XML content directly
-                    with open(xml_file_path, "wb") as f:
-                        f.write(response.content)
-
-                    activity.logger.success(f"✅ Downloaded XML: {xml_filename}")
-                    return xml_file_path
+                    xml_content = response.content.decode("utf-8")
+                    activity.logger.info(f"✅ Downloaded XML: {khhdon}-{shdon}")
+                    return xml_content
 
             else:
                 activity.logger.error(
-                    f"❌ Failed to download XML for {invoice_code}-{invoice_number}: {response.status_code}"
+                    f"❌ Failed to download XML for {khhdon}-{shdon}: {response.status_code}"
                 )
                 activity.logger.error(f"Response: {response.text[:500]}")
                 return None
@@ -195,7 +170,7 @@ async def _download_invoice_xml_with_retry(
     max_retries: int = XML_DOWNLOAD_MAX_RETRIES,
 ) -> Optional[str]:
     """
-    Download XML file with retry logic for failed downloads.
+    Download XML content with retry logic for failed downloads.
     
     Args:
         invoice: GdtInvoice with invoice parameters
@@ -204,7 +179,7 @@ async def _download_invoice_xml_with_retry(
         max_retries: Maximum number of retry attempts
         
     Returns:
-        Path to downloaded XML file or None if failed
+        XML content as string or None if failed
     """
     invoice_code = invoice.metadata.get("khhdon", "unknown")
     invoice_number = invoice.invoice_number
@@ -215,14 +190,14 @@ async def _download_invoice_xml_with_retry(
                 f"📄 Downloading XML {invoice_code}-{invoice_number} (attempt {attempt + 1}/{max_retries})"
             )
 
-            xml_path = await _download_invoice_xml(invoice, session, endpoint_kind)
+            xml_content = await _download_invoice_xml(invoice, session, endpoint_kind)
 
-            if xml_path:
+            if xml_content:
                 if attempt > 0:
-                    activity.logger.success(
+                    activity.logger.info(
                         f"✅ Successfully downloaded {invoice_code}-{invoice_number} on retry attempt {attempt + 1}"
                     )
-                return xml_path
+                return xml_content
 
             # If first attempt fails, wait before retry
             if attempt < max_retries - 1:
@@ -239,76 +214,6 @@ async def _download_invoice_xml_with_retry(
 
     activity.logger.error(f"🔴 Failed to download XML for {invoice_code}-{invoice_number} after {max_retries} attempts")
     return None
-
-
-async def _upload_xml_to_gcs(
-    xml_file_path: str,
-    invoice: GdtInvoice,
-    session: GdtSession
-) -> Optional[str]:
-    """
-    Upload XML file to GCS and return the GCS URL.
-    
-    Args:
-        xml_file_path: Local path to XML file
-        invoice: GdtInvoice for metadata
-        session: GdtSession for company_id
-        
-    Returns:
-        GCS URL of uploaded file or None if failed
-    """
-    if not storage:
-        activity.logger.warning("Google Cloud Storage not available - skipping GCS upload")
-        return None
-
-    if not GCS_BUCKET_NAME:
-        activity.logger.warning("No GCS bucket name configured - skipping GCS upload")
-        return None
-
-    try:
-        # Verify file exists and has content
-        if not os.path.exists(xml_file_path):
-            activity.logger.warning(f"XML file does not exist: {xml_file_path}")
-            return None
-
-        file_size = os.path.getsize(xml_file_path)
-        if file_size == 0:
-            activity.logger.warning(f"Skipping empty XML file: {xml_file_path}")
-            return None
-
-        # Create GCS folder path
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        company_id = session.company_id
-        invoice_code = invoice.metadata.get("khhdon", "unknown")
-        invoice_number = invoice.invoice_number
-        
-        # Create GCS blob path using invoice_code and invoice_number
-        filename = f"{invoice_code}_{invoice_number}_{timestamp}.xml"
-        blob_path = f"gdt-invoices/{company_id}/{timestamp}/{filename}"
-
-        # Initialize GCS client
-        client = storage.Client()
-        bucket = client.bucket(GCS_BUCKET_NAME)
-
-        # Upload file with timeout handling
-        blob = bucket.blob(blob_path)
-        blob.upload_from_filename(xml_file_path, timeout=60)
-
-        gcs_url = f"gs://{GCS_BUCKET_NAME}/{blob_path}"
-        activity.logger.success(f"✅ Uploaded XML to GCS: {gcs_url}")
-
-        # Clean up local file
-        try:
-            os.unlink(xml_file_path)
-            activity.logger.debug(f"Cleaned up local XML file: {xml_file_path}")
-        except Exception as cleanup_error:
-            activity.logger.warning(f"Failed to clean up local file {xml_file_path}: {cleanup_error}")
-
-        return gcs_url
-
-    except Exception as e:
-        activity.logger.error(f"❌ Failed to upload XML to GCS: {e}")
-        return None
 
 
 # ============================================================================
@@ -329,8 +234,7 @@ async def fetch_invoice(
     1. Build detail API URL with invoice parameters
     2. Download invoice JSON with full details including line items (hdhhdvu)
     3. Download XML file for the invoice with retry logic
-    4. Upload XML file to GCS and return GCS URL
-    5. Return invoice data with JSON content and XML GCS URL
+    4. Return invoice data with JSON content and XML content as string
 
     Rate Limiting Strategy:
     - Let GDT handle their own rate limiting (429 responses)
@@ -342,7 +246,7 @@ async def fetch_invoice(
         session: GdtSession with bearer token and cookies
 
     Returns:
-        InvoiceFetchResult with JSON content, XML GCS URL, and download status
+        InvoiceFetchResult with JSON content and XML content as string
     """
     # Handle case where arguments are passed as a list (serialization issue)
     if isinstance(invoice, list):
@@ -489,35 +393,25 @@ async def fetch_invoice(
                             f"✅ Fetched invoice {invoice.invoice_id} with {len(line_items)} line items"
                         )
 
-                        # Download XML file and upload to GCS
-                        xml_gcs_url = None
-                        xml_download_status = "not_attempted"
+                        # Download XML as string
+                        invoice_xml = None
                         
-                        # try:
-                        #     activity.logger.info(f"📄 Starting XML download for invoice {invoice.invoice_id}")
+                        try:
+                            activity.logger.info(f"📄 Starting XML download for invoice {invoice.invoice_id}")
                             
-                        #     # Download XML with retry logic
-                        #     xml_file_path = await _download_invoice_xml_with_retry(
-                        #         invoice, session, endpoint_kind
-                        #     )
+                            # Download XML content with retry logic
+                            xml_content = await _download_invoice_xml_with_retry(
+                                invoice, session, endpoint_kind
+                            )
                             
-                        #     if xml_file_path:
-                        #         # Upload to GCS
-                        #         xml_gcs_url = await _upload_xml_to_gcs(xml_file_path, invoice, session)
+                            if xml_content:
+                                invoice_xml = xml_content
+                                activity.logger.info(f"✅ XML successfully downloaded for invoice {invoice.invoice_id}")
+                            else:
+                                activity.logger.warning(f"⚠️ XML download failed for invoice {invoice.invoice_id}")
                                 
-                        #         if xml_gcs_url:
-                        #             xml_download_status = "success"
-                        #             activity.logger.success(f"✅ XML successfully downloaded and uploaded to GCS: {xml_gcs_url}")
-                        #         else:
-                        #             xml_download_status = "failed"
-                        #             activity.logger.warning(f"⚠️ XML downloaded but GCS upload failed for invoice {invoice.invoice_id}")
-                        #     else:
-                        #         xml_download_status = "failed"
-                        #         activity.logger.warning(f"⚠️ XML download failed for invoice {invoice.invoice_id}")
-                                
-                        # except Exception as xml_error:
-                        #     xml_download_status = "failed"
-                        #     activity.logger.error(f"❌ XML download/upload error for invoice {invoice.invoice_id}: {xml_error}")
+                        except Exception as xml_error:
+                            activity.logger.error(f"❌ XML download error for invoice {invoice.invoice_id}: {xml_error}")
 
                         # Prepare metadata without status field
                         invoice_metadata = getattr(invoice, "metadata", {}).copy()
@@ -535,8 +429,7 @@ async def fetch_invoice(
                                 "metadata": invoice_metadata,
                                 **invoice_detail,  # Flatten invoice_detail fields to top level
                             },
-                            xml_gcs_url=xml_gcs_url,
-                            xml_download_status=xml_download_status,
+                            invoice_xml=invoice_xml,
                         )
                     else:
                         activity.logger.error(f"Empty JSON response for invoice {invoice.invoice_id}, Response: {response.text[:500]}, Request URL: {full_url}, Response status: {response.status_code}, Raw Response: {response}")

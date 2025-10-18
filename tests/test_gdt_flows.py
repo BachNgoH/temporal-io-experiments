@@ -33,6 +33,9 @@ API_BASE_URL = "http://localhost:8000"
 GDT_USERNAME = "0317530616"
 GDT_PASSWORD = "DlzGy00@"
 
+# GDT_USERNAME = "0318745163"
+# GDT_PASSWORD = "Go123456"
+
 # GDT_USERNAME = "8026037048"
 # GDT_PASSWORD = "Ngo8@vvt"
 
@@ -41,7 +44,7 @@ GDT_PASSWORD = "DlzGy00@"
 # COMPANY_ID = "Ngo8Vovantan"
 # COMPANY_NAME = "Ngo8Vovantan"
 COMPANY_NAME = "PATEDELI"
-COMPANY_ID = "bffe767f-aed0-4d73-b996-dc80edfd752c"
+COMPANY_ID = "be886d3c-d523-46d4-9c38-8ebb44d427c6"
 
 
 # All available flows

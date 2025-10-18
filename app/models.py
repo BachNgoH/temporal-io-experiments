@@ -86,8 +86,12 @@ class GdtInvoiceImportParams(BaseModel):
     credentials: dict[str, str] = Field(
         ..., description="GDT portal login credentials (username, password)"
     )
-    date_range_start: str = Field(..., description="Start date (YYYY-MM-DD)")
-    date_range_end: str = Field(..., description="End date (YYYY-MM-DD)")
+    date_range_start: str | None = Field(
+        None, description="Start date (YYYY-MM-DD, defaults to yesterday if not provided)"
+    )
+    date_range_end: str | None = Field(
+        None, description="End date (YYYY-MM-DD, defaults to yesterday if not provided)"
+    )
     flows: list[InvoiceFlow] = Field(
         default=[
             InvoiceFlow.BAN_RA_DIEN_TU,
@@ -96,6 +100,13 @@ class GdtInvoiceImportParams(BaseModel):
             InvoiceFlow.MUA_VAO_MAY_TINH_TIEN,
         ],
         description="Invoice flows to crawl (default: all flows)",
+    )
+    discovery_method: str = Field(
+        default="excel", description="Discovery method: 'api' or 'excel' (default: excel)"
+    )
+    processing_mode: str = Field(
+        default="sequential",
+        description="Processing mode: 'sequential' or 'parallel' (default: sequential)",
     )
 
 
@@ -147,3 +158,31 @@ class DataPipelineParams(BaseModel):
     source_config: dict[str, Any]
     transform_steps: list[str]
     destination_config: dict[str, Any]
+
+
+# ============================================================================
+# Schedule Models
+# ============================================================================
+
+
+class CreateScheduleRequest(BaseModel):
+    """Request to create a daily schedule for any task type."""
+
+    schedule_id: str = Field(..., description="Unique schedule identifier")
+    task_type: TaskType = Field(..., description="Type of task to schedule")
+    task_params: dict[str, Any] = Field(
+        ..., description="Task-specific parameters (supports Go template for dynamic dates)"
+    )
+    hour: int = Field(default=1, ge=0, le=23, description="Hour to run daily (0-23, UTC)")
+    minute: int = Field(default=0, ge=0, le=59, description="Minute to run (0-59)")
+    paused: bool = Field(default=False, description="Create schedule in paused state")
+    note: str = Field(default="", description="Optional note describing the schedule")
+
+
+class ScheduleResponse(BaseModel):
+    """Response after creating a schedule."""
+
+    schedule_id: str
+    task_type: TaskType
+    status: str
+    message: str
